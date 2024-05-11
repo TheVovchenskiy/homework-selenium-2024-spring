@@ -1,5 +1,4 @@
 import time
-import pytest
 from _pytest.fixtures import FixtureRequest
 
 from base import LoginCase
