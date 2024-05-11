@@ -33,6 +33,7 @@ def driver(config):
         options.add_argument(f'--user-data-dir={CHROME_DATA_DIR}')
         service = Service(executable_path=ChromeDriverManager().install())
         driver = webdriver.Chrome(options=options, service=service)
+        # driver.
     else:
         raise RuntimeError(f'Unsupported browser: "{browser}"')
     driver.get(url)

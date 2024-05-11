@@ -11,6 +11,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from ui.fixtures import *
 
 
+TIMEOUT_UNTIL_LOADED = 5
+
+
 class PageNotOpenedExeption(Exception):
     pass
 
@@ -18,10 +21,9 @@ class PageNotOpenedExeption(Exception):
 class BasePage:
 
     locators = base_locators.BasePageLocators()
-    # locators_main = basic_locators.MainPageLocators()
     url = 'https://ads.vk.com/'
 
-    def is_opened(self, url: Optional[str]=None, timeout: int | float=15):
+    def is_opened(self, url: Optional[str] = None, timeout: int | float = 15):
         if url is None:
             url = self.url
 
@@ -33,6 +35,12 @@ class BasePage:
             f'{url} did not open in {timeout} sec, '
             'current url {self.driver.current_url}'
         )
+
+    def wait_until_loaded(self, locators: list, timeout=TIMEOUT_UNTIL_LOADED):
+        for locator in locators:
+            self.wait(TIMEOUT_UNTIL_LOADED).until(
+                EC.presence_of_all_elements_located(locator)
+            )
 
     def __init__(self, driver):
         self.driver = driver

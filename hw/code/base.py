@@ -36,14 +36,12 @@ class BaseCase:
         self.driver = driver
         self.config = config
 
-
-        print(config)
         if config['auth']:
             self.login_page = LoginPage(driver)
             self.login_setup()
         else:
             self.main_page = MainPage(driver)
-        
+
         self.settings_setup()
 
 
