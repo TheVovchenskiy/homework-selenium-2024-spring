@@ -44,6 +44,8 @@ class BaseCase:
 
         self.settings_setup()
 
+        # return self
+
 
 class LoginCase(BaseCase):
     def login_setup(self):
