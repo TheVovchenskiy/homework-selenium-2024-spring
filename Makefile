@@ -17,6 +17,10 @@ help: ## Display this help.
 
 ##@ Development
 
+.PHONY: auth
+auth: ## Auth to your VK ID and save cookies for tests locally.
+	pytest ./hw/code --auth
+
 .PHONY: test
 test: ## Run tests.
 	pytest ./hw/code

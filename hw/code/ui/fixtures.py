@@ -3,10 +3,12 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.firefox import GeckoDriverManager
-from ui.pages.base_page import BasePage
+# from webdriver_manager.firefox import GeckoDriverManager
+
+# from ui.pages.base_page import BasePage
 # from ui.pages.main_page import MainPage
 
+CHROME_DATA_DIR = 'chrome-data'
 
 @pytest.fixture()
 def driver(config):
@@ -28,10 +30,9 @@ def driver(config):
             desired_capabilities=capabilities
         )
     elif browser == 'chrome':
+        options.add_argument(f'--user-data-dir={CHROME_DATA_DIR}')
         service = Service(executable_path=ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=service)
-    elif browser == 'firefox':
-        driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
+        driver = webdriver.Chrome(options=options, service=service)
     else:
         raise RuntimeError(f'Unsupported browser: "{browser}"')
     driver.get(url)
@@ -43,15 +44,15 @@ def driver(config):
 def get_driver(browser_name):
     if browser_name == 'chrome':
         browser = webdriver.Chrome(executable_path=ChromeDriverManager().install())
-    elif browser_name == 'firefox':
-        browser = webdriver.Firefox(executable_path=GeckoDriverManager().install())
+    # elif browser_name == 'firefox':
+    #     browser = webdriver.Firefox(executable_path=GeckoDriverManager().install())
     else:
         raise RuntimeError(f'Unsupported browser: "{browser_name}"')
     browser.maximize_window()
     return browser
 
 
-@pytest.fixture(scope='session', params=['chrome', 'firefox'])
+@pytest.fixture(scope='session', params=['chrome'])
 def all_drivers(config, request):
     url = config['url']
     browser = get_driver(request.param)
@@ -60,9 +61,9 @@ def all_drivers(config, request):
     browser.quit()
 
 
-@pytest.fixture
-def base_page(driver):
-    return BasePage(driver=driver)
+# @pytest.fixture
+# def base_page(driver):
+#     return BasePage(driver=driver)
 
 
 # @pytest.fixture

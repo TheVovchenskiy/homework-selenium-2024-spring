@@ -1,9 +1,12 @@
 from contextlib import contextmanager
 
+
 import pytest
 from _pytest.fixtures import FixtureRequest
-# from ui.pages.base_page import BasePage
-# from ui.pages.main_page import MainPage
+
+from ui.pages.main_page import MainPage
+from ui.pages.login_page import LoginPage
+
 
 CLICK_RETRY = 3
 
@@ -22,11 +25,28 @@ class BaseCase:
             self.driver.close()
         self.driver.switch_to.window(current)
 
+    def login_setup(self):
+        pass
+
+    def settings_setup(self):
+        pass
+
     @pytest.fixture(scope='function', autouse=True)
     def setup(self, driver, config, request: FixtureRequest):
         self.driver = driver
         self.config = config
-        # self.logger = logger
 
-        # self.base_page: BasePage = (request.getfixturevalue('base_page'))
-        # self.main_page: MainPage = (request.getfixturevalue('main_page'))
+
+        print(config)
+        if config['auth']:
+            self.login_page = LoginPage(driver)
+            self.login_setup()
+        else:
+            self.main_page = MainPage(driver)
+        
+        self.settings_setup()
+
+
+class LoginCase(BaseCase):
+    def login_setup(self):
+        self.main_page = self.login_page.login()
