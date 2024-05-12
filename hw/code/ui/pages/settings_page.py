@@ -81,10 +81,12 @@ class SettingsPage(MainPage):
         self.click(locator, timeout=5)
 
     def press_save(self):
-        self.press_button(SettingsPageLocators.SAVE_BUTTON)
+        if self.save_cancel_is_visible():
+            self.press_button(SettingsPageLocators.SAVE_BUTTON)
 
     def press_cancel(self):
-        self.press_button(SettingsPageLocators.CANCEL_BUTTON)
+        if self.save_cancel_is_visible():
+            self.press_button(SettingsPageLocators.CANCEL_BUTTON)
 
     def press_add_email(self):
         self.press_button(SettingsPageLocators.ADD_EMAIL_BUTTON)

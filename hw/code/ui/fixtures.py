@@ -1,3 +1,4 @@
+import time
 import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -9,6 +10,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 # from ui.pages.main_page import MainPage
 
 CHROME_DATA_DIR = 'chrome-data'
+
 
 @pytest.fixture()
 def driver(config):
@@ -44,7 +46,8 @@ def driver(config):
 
 def get_driver(browser_name):
     if browser_name == 'chrome':
-        browser = webdriver.Chrome(executable_path=ChromeDriverManager().install())
+        browser = webdriver.Chrome(
+            executable_path=ChromeDriverManager().install())
     # elif browser_name == 'firefox':
     #     browser = webdriver.Firefox(executable_path=GeckoDriverManager().install())
     else:
@@ -60,13 +63,3 @@ def all_drivers(config, request):
     browser.get(url)
     yield browser
     browser.quit()
-
-
-# @pytest.fixture
-# def base_page(driver):
-#     return BasePage(driver=driver)
-
-
-# @pytest.fixture
-# def main_page(driver):
-#     return MainPage(driver=driver)

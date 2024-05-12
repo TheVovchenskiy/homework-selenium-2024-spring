@@ -102,6 +102,9 @@ class BasePage:
         return prev_data, self.get_input_value(input=input)
 
     def get_input_value(self, *, locator: Locator = None, input: WebElement = None) -> str:
-        if locator:
-            input = self.find(locator, timeout=DEFAULT_TIMEOUT)
-        return input.get_attribute('value')
+        if bool(locator) + bool(input) == 1:
+            if locator:
+                input = self.find(locator, timeout=DEFAULT_TIMEOUT)
+            return input.get_attribute('value')
+        else:
+            raise TypeError('one of two positional arguments must be None')
