@@ -17,6 +17,10 @@ ERR_INVALID_EMAIL = 'Некорректный email адрес'
 
 ERR_INVALID_NAME_SYMBOLS = 'Некорректные символы. Разрешена только кириллица дефис и пробел'
 
+ERR_INVALID_INN_LENGTH = 'Длина ИНН должна быть 12 символов'
+ERR_INVALID_INN = 'Невалидный ИНН'
+ERR_INCORRECT_INN = 'Некорректный ИНН'
+
 DEFAULT_PHONE = '+71234567890'
 DEFAULT_NAME = 'Иван'
 DEFAULT_INN = '123456789012'
@@ -25,52 +29,6 @@ DEFAULT_CABINET = 'кабинет'
 
 class SettingsPage(MainPage):
     url = 'https://ads.vk.com/hq/settings'
-
-    # def get_current_settings(self):
-    #     phone = self.find(
-    #         SettingsPageLocators.PHONE_INPUT
-    #     ).get_attribute('value')
-    #     name = self.find(
-    #         SettingsPageLocators.NAME_INPUT
-    #     ).get_attribute('value')
-    #     inn = self.find(SettingsPageLocators.INN_INPUT).get_attribute('value')
-    #     cabinet = self.find(
-    #         SettingsPageLocators.CABINET_INPUT
-    #     ).get_attribute('value')
-
-    #     return {
-    #         'phone': phone,
-    #         'name': name,
-    #         'inn': inn,
-    #         'cabinet': cabinet,
-    #     }
-
-    # def set_settings(self, settings):
-    #     if 'phone' in settings and settings['phone']:
-    #         self.update_input_field(
-    #             SettingsPageLocators.PHONE_INPUT,
-    #             settings['phone'],
-    #         )
-
-    #     if 'name' in settings and settings['name']:
-    #         self.update_input_field(
-    #             SettingsPageLocators.NAME_INPUT,
-    #             settings['name'],
-    #         )
-
-    #     if 'inn' in settings and settings['inn']:
-    #         self.update_input_field(
-    #             SettingsPageLocators.INN_INPUT,
-    #             settings['inn'],
-    #         )
-
-    #     if 'cabinet' in settings and settings['cabinet']:
-    #         self.update_input_field(
-    #             SettingsPageLocators.CABINET_INPUT,
-    #             settings['cabinet'],
-    #         )
-
-    #     self.press_save()
 
     def save_cancel_is_visible(self) -> bool:
         time.sleep(0.5)
@@ -117,6 +75,12 @@ class SettingsPage(MainPage):
         return self.update_input_field(
             SettingsPageLocators.NAME_INPUT,
             new_name,
+        )
+
+    def update_inn(self, new_inn: str) -> tuple[str, str]:
+        return self.update_input_field(
+            SettingsPageLocators.INN_INPUT,
+            new_inn,
         )
 
     def update_email(self, id: int, email: str):

@@ -120,6 +120,7 @@ class BasePage:
         Returns value of input field by given locator or by WebElement input.
         One of two params must be None.
         """
+        time.sleep(0.5)
         if bool(locator) + bool(input) == 1:
             if locator:
                 input = self.find(locator, timeout=DEFAULT_TIMEOUT)
