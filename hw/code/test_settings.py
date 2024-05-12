@@ -302,3 +302,8 @@ class TestSettings(SettingsCase):
         self.settings_page.update_cabinet(prev_cabinet)
 
         self.settings_page.press_save()
+
+    @pytest.mark.skip('skip')
+    def test_general_language(self, pre_post_check):
+        self.settings_page.change_language()
+        self.settings_page.change_language()

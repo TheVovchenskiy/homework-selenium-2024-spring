@@ -1,10 +1,12 @@
 import time
+from ui.pages.base_page import DEFAULT_TIMEOUT
 from ui.locators.base_locators import Locator
 from ui.locators.settings_locators import SettingsPageLocators
 from ui.pages.main_page import MainPage
 
 
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.support import expected_conditions as EC
 
 
 ERR_REQUIRED_FIELD = 'Обязательное поле'
@@ -82,7 +84,7 @@ class SettingsPage(MainPage):
             SettingsPageLocators.INN_INPUT,
             new_inn,
         )
-    
+
     def update_cabinet(self, new_cabinet: str) -> tuple[str, str]:
         return self.update_input_field(
             SettingsPageLocators.CABINET_INPUT,
@@ -102,3 +104,66 @@ class SettingsPage(MainPage):
 
     def remove_additional_email(self):
         self.click(SettingsPageLocators.REMOVE_EMAIL_BUTTON, timeout=5)
+
+    def open_language_dropdown(self):
+        elem = self.find(SettingsPageLocators.LANGUAGE_BUTTON)
+
+        id = elem.get_attribute('aria-owns')
+        print(id)
+        self.wait().until(EC.element_to_be_clickable(elem)).click()
+        # self.click(SettingsPageLocators.LANGUAGE_BUTTON)
+        self.wait().until(EC.visibility_of_element_located(
+            SettingsPageLocators.LANGUAGE_DROPDOWN(id)
+        ))
+        return id
+
+    def get_curr_language(self) -> str:
+        elem = self.find(SettingsPageLocators.LANGUAGE_CURR_LANG)
+
+        return elem.text
+
+    def assert_chosen_language(self, lang_elem: WebElement):
+        assert lang_elem.get_attribute('aria-selected') == 'true'
+
+    def change_language(self):
+        target_elem = self.find(SettingsPageLocators.LANGUAGE_BUTTON)
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView(true);",
+            target_elem,
+        )
+
+        curr_language = self.get_curr_language()
+
+        id = self.open_language_dropdown()
+
+        if curr_language == 'RU':
+            ru_elem = self.wait().until(EC.visibility_of_element_located(
+                SettingsPageLocators.LANGUAGE_RU(id)
+            ))
+            self.assert_chosen_language(ru_elem)
+
+            self.click(SettingsPageLocators.LANGUAGE_EN(id))
+            time.sleep(1)
+
+            id = self.open_language_dropdown()
+
+            en_elem = self.wait().until(EC.visibility_of_element_located(
+                SettingsPageLocators.LANGUAGE_EN(id)
+            ))
+            self.assert_chosen_language(en_elem)
+        elif curr_language == 'EN':
+            en_elem = self.wait().until(EC.visibility_of_element_located(
+                SettingsPageLocators.LANGUAGE_EN(id)
+            ))
+            self.assert_chosen_language(en_elem)
+
+            self.click(SettingsPageLocators.LANGUAGE_RU(id))
+
+            id = self.open_language_dropdown()
+
+            ru_elem = self.wait().until(EC.visibility_of_element_located(
+                SettingsPageLocators.LANGUAGE_RU(id)
+            ))
+            self.assert_chosen_language(ru_elem)
+
+        self.click(SettingsPageLocators.LANGUAGE_BUTTON)

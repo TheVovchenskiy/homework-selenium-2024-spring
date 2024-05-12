@@ -7,6 +7,7 @@ from selenium.webdriver.common.keys import Keys
 from ui.locators.base_locators import Locator
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
 
 
 from ui.fixtures import *
@@ -44,7 +45,8 @@ class BasePage:
             )
 
     def __init__(self, driver):
-        self.driver = driver
+        self.driver: webdriver.Chrome = driver
+        self.actions = ActionChains(self.driver)
         self.is_opened()
 
     def wait(self, timeout=None):
