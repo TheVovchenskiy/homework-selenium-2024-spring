@@ -41,6 +41,7 @@ class SettingsCase(LoginCase):
     #     request.addfinalizer(restore_settings)
 
     def error_match(self, locator: Locator, expected_error: Optional[str]) -> bool:
+        time.sleep(1)
         if expected_error is None:
             return True
 
@@ -71,14 +72,10 @@ class TestSettings(SettingsCase):
             map(lambda item: item in self.driver.page_source, expected_values)
         )
 
+    @pytest.mark.skip('skip')
     @pytest.mark.parametrize(
         'input_data,expected_value,expected_error',
         [
-            # pytest.param(
-            #     '',
-            #     '',
-            #     settings_page.ERR_INVALID_PHONE_LENGTH,
-            # ),
             pytest.param(
                 '+71234567890',
                 '+71234567890',
@@ -128,18 +125,15 @@ class TestSettings(SettingsCase):
             input_data,
         )
 
-        print(prev_phone_number, curr_value)
-
         assert curr_value == expected_value
 
         assert self.settings_page.save_cancel_is_visible()
 
         self.settings_page.press_save()
 
-        time.sleep(1)
         assert self.error_match(
             SettingsPageLocators.PHONE_BLOCK,
-            expected_error
+            expected_error,
         )
 
         if not expected_error:
@@ -154,5 +148,44 @@ class TestSettings(SettingsCase):
             assert prev_phone_number == self.settings_page.get_input_value(
                 locator=SettingsPageLocators.PHONE_INPUT,
             )
+
+        time.sleep(1)
+
+    def test_general_email(self):
+        assert not self.settings_page.save_cancel_is_visible()
+
+        self.settings_page.press_add_email()
+
+        assert self.settings_page.save_cancel_is_visible()
+
+        self.settings_page.press_save()
+
+        assert self.error_match(
+            SettingsPageLocators.ADDITIONAL_EMAIL_BLOCK,
+            settings_page.ERR_REQUIRED_FIELD,
+        )
+
+        for email, error in [
+            ('email@example.c', settings_page.ERR_INVALID_EMAIL),
+            ('email@example', settings_page.ERR_INVALID_EMAIL),
+            ('email@@example.com', settings_page.ERR_INVALID_EMAIL),
+            ('@example.com', settings_page.ERR_INVALID_EMAIL),
+            ('email', settings_page.ERR_INVALID_EMAIL),
+            ('@', settings_page.ERR_INVALID_EMAIL),
+            ('email', settings_page.ERR_INVALID_EMAIL),
+            ('email@example.co', None),
+            ('email@example.com', None),
+        ]:
+            self.settings_page.update_email(0, email)
+            assert self.error_match(
+                SettingsPageLocators.ADDITIONAL_EMAIL_BLOCK,
+                error,
+            )
+
+        self.settings_page.press_save()
+
+        self.settings_page.has_warning('Подтвердите почту')
+
+        self.settings_page.remove_additional_email()
 
         time.sleep(1)

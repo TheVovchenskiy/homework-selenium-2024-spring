@@ -8,9 +8,11 @@ from selenium.webdriver.remote.webelement import WebElement
 
 
 ERR_REQUIRED_FIELD = 'Обязательное поле'
+
 ERR_INVALID_PHONE_NUMBER = 'Некорректный номер телефона'
 ERR_INVALID_PHONE_LENGTH = 'Телефон не может быть короче 12 цифр'
 
+ERR_INVALID_EMAIL = 'Некорректный email адрес'
 
 DEFAULT_PHONE = '+71234567890'
 DEFAULT_NAME = 'Иван'
@@ -74,13 +76,18 @@ class SettingsPage(MainPage):
             SettingsPageLocators.CANCEL_BUTTON)
         return save_button.is_displayed() and cancel_button.is_displayed()
 
-    def press_save(self):
+    def press_button(self, locator: Locator):
         time.sleep(0.5)
-        self.click(SettingsPageLocators.SAVE_BUTTON, timeout=5)
+        self.click(locator, timeout=5)
+
+    def press_save(self):
+        self.press_button(SettingsPageLocators.SAVE_BUTTON)
 
     def press_cancel(self):
-        time.sleep(0.5)
-        self.click(SettingsPageLocators.CANCEL_BUTTON, timeout=5)
+        self.press_button(SettingsPageLocators.CANCEL_BUTTON)
+
+    def press_add_email(self):
+        self.press_button(SettingsPageLocators.ADD_EMAIL_BUTTON)
 
     def get_error(self, locator: Locator = None) -> WebElement:
         return self.find(
@@ -96,3 +103,17 @@ class SettingsPage(MainPage):
             SettingsPageLocators.PHONE_INPUT,
             new_phone_number,
         )
+
+    def update_email(self, id: int, email: str):
+        return self.update_input_field(
+            SettingsPageLocators.ADDITIONAL_EMAIL_INPUT(id),
+            email,
+        )
+
+    def has_warning(self, message: str) -> bool:
+        elem = self.find(SettingsPageLocators.WARNING, timeout=5)
+
+        return message in elem.text
+
+    def remove_additional_email(self):
+        self.click(SettingsPageLocators.REMOVE_EMAIL_BUTTON, timeout=5)
