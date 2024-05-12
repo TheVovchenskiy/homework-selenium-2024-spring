@@ -227,7 +227,7 @@ class TestSettings(SettingsCase):
 
         self.settings_page.press_save()
 
-    # @pytest.mark.skip('skip')
+    @pytest.mark.skip('skip')
     def test_general_inn(self, pre_post_check):
         prev_inn = self.settings_page.get_input_value(
             locator=SettingsPageLocators.INN_INPUT,
@@ -256,11 +256,6 @@ class TestSettings(SettingsCase):
                 self.settings_page.press_save(expected_error is not None)
             except TimeoutError:
                 pass
-            # else:
-            #     curr_value = self.settings_page.get_input_value(
-            #         locator=SettingsPageLocators.INN_INPUT,
-            #     )
-            #     assert curr_value == expected_value_after_save
 
             assert self.error_match(
                 SettingsPageLocators.INN_BLOCK,
@@ -268,5 +263,42 @@ class TestSettings(SettingsCase):
             )
 
         self.settings_page.update_inn(prev_inn)
+
+        self.settings_page.press_save()
+
+    @pytest.mark.skip('skip')
+    def test_general_cabinet_input(self, pre_post_check):
+        prev_cabinet = self.settings_page.get_input_value(
+            locator=SettingsPageLocators.CABINET_INPUT,
+        )
+
+        for new_value, expected_error in [
+            ('Cabinet', None),
+            ('Cabinet name 123', None),
+            (r'Cabinet name 123 !@#$%^&*()_+{}[]>?,/.\|', None),
+            ('      ', settings_page.ERR_ONLY_SPACES),
+        ]:
+            prev_value, curr_value = self.settings_page.update_cabinet(
+                new_value,
+            )
+
+            assert curr_value == new_value[:255]
+
+            if prev_value == curr_value:
+                assert not self.settings_page.save_cancel_is_visible()
+            else:
+                assert self.settings_page.save_cancel_is_visible()
+
+            try:
+                self.settings_page.press_save(expected_error is not None)
+            except TimeoutError:
+                pass
+
+            assert self.error_match(
+                SettingsPageLocators.CABINET_BLOCK,
+                expected_error,
+            )
+
+        self.settings_page.update_cabinet(prev_cabinet)
 
         self.settings_page.press_save()

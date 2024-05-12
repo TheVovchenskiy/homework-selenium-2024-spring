@@ -82,6 +82,12 @@ class SettingsPage(MainPage):
             SettingsPageLocators.INN_INPUT,
             new_inn,
         )
+    
+    def update_cabinet(self, new_cabinet: str) -> tuple[str, str]:
+        return self.update_input_field(
+            SettingsPageLocators.CABINET_INPUT,
+            new_cabinet,
+        )
 
     def update_email(self, id: int, email: str):
         return self.update_input_field(

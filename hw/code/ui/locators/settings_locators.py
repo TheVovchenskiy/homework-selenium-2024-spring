@@ -22,6 +22,7 @@ class SettingsPageLocators:
     INN_BLOCK = (By.XPATH, '//*[@id="settings"]/div/form/section[3]/div[2]/div[2]')
     INN_INPUT = (By.XPATH, '//*[@data-testid="general-ord-inn"]')
 
+    CABINET_BLOCK = (By.XPATH, '//*[@id="settings"]/div/form/section[4]/div[2]/div[1]')
     CABINET_INPUT = (By.XPATH, '//*[@data-testid="account-item"]')
 
     SAVE_BUTTON = (By.XPATH, '//*[@data-testid="settings-save"]')
