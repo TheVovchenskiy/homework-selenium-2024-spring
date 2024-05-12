@@ -1,8 +1,9 @@
 import time
-from typing import Optional
+from typing import Any, Callable, Optional
 
 import allure
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.common.keys import Keys
 from ui.locators.base_locators import Locator
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -51,6 +52,16 @@ class BasePage:
             timeout = DEFAULT_TIMEOUT
         return WebDriverWait(self.driver, timeout=timeout)
 
+    def wait_until_true(self, func: Callable[[Any], bool], timeout: float = None, *args, **kwargs) -> bool:
+        if timeout is None:
+            timeout = DEFAULT_TIMEOUT
+        started = time.time()
+        while time.time() - started < timeout:
+            if func(*args, **kwargs):
+                return True
+
+        raise TimeoutError
+
     def find(
             self,
             locator: Locator,
@@ -95,13 +106,20 @@ class BasePage:
         input = self.find(locator, timeout=DEFAULT_TIMEOUT)
         prev_data = self.get_input_value(input=input)
 
-        input.clear()
-        input.send_keys(new_input_data)
+        if new_input_data:
+            input.clear()
+            input.send_keys(new_input_data)
+        else:
+            input.send_keys(Keys.BACKSPACE * len(prev_data))
 
         time.sleep(0.5)
         return prev_data, self.get_input_value(input=input)
 
     def get_input_value(self, *, locator: Locator = None, input: WebElement = None) -> str:
+        """
+        Returns value of input field by given locator or by WebElement input.
+        One of two params must be None.
+        """
         if bool(locator) + bool(input) == 1:
             if locator:
                 input = self.find(locator, timeout=DEFAULT_TIMEOUT)

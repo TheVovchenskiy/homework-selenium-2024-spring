@@ -54,6 +54,17 @@ class SettingsCase(LoginCase):
 
 
 class TestSettings(SettingsCase):
+
+    @pytest.fixture
+    def pre_post_check(self):
+        assert not self.settings_page.save_cancel_is_visible()
+
+        yield
+
+        assert not self.settings_page.save_cancel_is_visible()
+
+        time.sleep(1)
+
     @pytest.mark.skip('skip')
     @pytest.mark.parametrize(
         'expected_values',
@@ -72,10 +83,8 @@ class TestSettings(SettingsCase):
             map(lambda item: item in self.driver.page_source, expected_values)
         )
 
-    @pytest.mark.skip('skip')
-    def test_general_phone_input_save(self):
-        assert not self.settings_page.save_cancel_is_visible()
-
+    # @pytest.mark.skip('skip')
+    def test_general_phone_input_save(self, pre_post_check):
         prev_phone_number = self.settings_page.get_input_value(
             locator=SettingsPageLocators.PHONE_INPUT,
         )
@@ -94,10 +103,10 @@ class TestSettings(SettingsCase):
             )
             assert curr_value == expected_value
 
-            # if prev_value == curr_value:
-            #     assert not self.settings_page.save_cancel_is_visible()
-            # else:
-            assert self.settings_page.save_cancel_is_visible()
+            if prev_value == curr_value:
+                assert not self.settings_page.save_cancel_is_visible()
+            else:
+                assert self.settings_page.save_cancel_is_visible()
 
             self.settings_page.press_save()
 
@@ -110,12 +119,8 @@ class TestSettings(SettingsCase):
 
         self.settings_page.press_save()
 
-        time.sleep(1)
-
     # @pytest.mark.skip('skip')
-    def test_general_email(self):
-        assert not self.settings_page.save_cancel_is_visible()
-
+    def test_general_email(self, pre_post_check):
         self.settings_page.press_add_email()
 
         assert self.settings_page.save_cancel_is_visible()
@@ -164,13 +169,10 @@ class TestSettings(SettingsCase):
             ('email@e.x.a.m.p.l.e.com', 'email@e.x.a.m.p.l.e.com', None),
             ('email@example.com', 'email@example.com', None),
         ]:
-            prev_value, curr_value = self.settings_page.update_email(0, email)
+            _, curr_value = self.settings_page.update_email(0, email)
             assert curr_value == expected_value
 
-            if prev_value == curr_value:
-                assert not self.settings_page.save_cancel_is_visible()
-            else:
-                assert self.settings_page.save_cancel_is_visible()
+            assert self.settings_page.save_cancel_is_visible()
 
             assert self.error_match(
                 SettingsPageLocators.ADDITIONAL_EMAIL_BLOCK,
@@ -184,4 +186,49 @@ class TestSettings(SettingsCase):
         self.settings_page.remove_additional_email()
         self.settings_page.press_save()
 
-        time.sleep(1)
+    def test_name(self, pre_post_check):
+        prev_name = self.settings_page.get_input_value(
+            locator=SettingsPageLocators.NAME_INPUT,
+        )
+
+        for new_value, expected_value_after_save, expected_error in [
+            ('Иван', 'Иван', None),
+            ('Иван Иванович', 'Иван Иванович', None),
+            ('Иван Иванович-Иванов', 'Иван Иванович-Иванов', None),
+            ('Иван Иванович-Иванов', 'Иван Иванович-Иванов', None),
+            ('Иван    Иванович     Иванов', 'Иван Иванович Иванов', None),
+            ('  Иван Иванович Иванов  ', '  Иван Иванович Иванов  ', None),
+            ('и' * 256, 'и' * 255, None),
+            ('', '', settings_page.ERR_REQUIRED_FIELD),
+            ('    ', '    ', settings_page.ERR_ONLY_SPACES),
+            ('Ivan', 'Ivan', settings_page.ERR_INVALID_NAME_SYMBOLS),
+        ]:
+            prev_value, curr_value = self.settings_page.update_name(
+                new_value,
+            )
+
+            assert curr_value == new_value[:255]
+
+            if prev_value == curr_value:
+                assert not self.settings_page.save_cancel_is_visible()
+            else:
+                assert self.settings_page.save_cancel_is_visible()
+
+            try:
+                self.settings_page.press_save(expected_error is not None)
+            except TimeoutError:
+                pass
+            else:
+                curr_value = self.settings_page.get_input_value(
+                    locator=SettingsPageLocators.NAME_INPUT,
+                )
+                assert curr_value == expected_value_after_save
+
+            assert self.error_match(
+                SettingsPageLocators.NAME_BLOCK,
+                expected_error,
+            )
+
+        self.settings_page.update_name(prev_name)
+
+        self.settings_page.press_save()

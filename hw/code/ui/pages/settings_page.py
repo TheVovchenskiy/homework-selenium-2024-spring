@@ -8,11 +8,14 @@ from selenium.webdriver.remote.webelement import WebElement
 
 
 ERR_REQUIRED_FIELD = 'Обязательное поле'
+ERR_ONLY_SPACES = 'Значение не может содержать только пробелы'
 
 ERR_INVALID_PHONE_NUMBER = 'Некорректный номер телефона'
 ERR_INVALID_PHONE_LENGTH = 'Телефон не может быть короче 12 цифр'
 
 ERR_INVALID_EMAIL = 'Некорректный email адрес'
+
+ERR_INVALID_NAME_SYMBOLS = 'Некорректные символы. Разрешена только кириллица дефис и пробел'
 
 DEFAULT_PHONE = '+71234567890'
 DEFAULT_NAME = 'Иван'
@@ -79,10 +82,14 @@ class SettingsPage(MainPage):
     def press_button(self, locator: Locator):
         time.sleep(0.5)
         self.click(locator, timeout=5)
+        time.sleep(0.5)
 
-    def press_save(self):
+    def press_save(self, expect_save=False):
         if self.save_cancel_is_visible():
             self.press_button(SettingsPageLocators.SAVE_BUTTON)
+            if expect_save:
+                if self.wait_until_true(lambda: not self.save_cancel_is_visible()):
+                    return
 
     def press_cancel(self):
         if self.save_cancel_is_visible():
@@ -104,6 +111,12 @@ class SettingsPage(MainPage):
         return self.update_input_field(
             SettingsPageLocators.PHONE_INPUT,
             new_phone_number,
+        )
+
+    def update_name(self, new_name: str) -> tuple[str, str]:
+        return self.update_input_field(
+            SettingsPageLocators.NAME_INPUT,
+            new_name,
         )
 
     def update_email(self, id: int, email: str):

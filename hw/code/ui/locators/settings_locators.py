@@ -16,7 +16,9 @@ class SettingsPageLocators:
         return (By.XPATH, f'//*[@data-testid="email-{id}"]')
     REMOVE_EMAIL_BUTTON = (By.XPATH, '//*[@aria-label="Удалить"]')
 
+    NAME_BLOCK = (By.XPATH, '//*[@id="settings"]/div/form/section[3]/div[2]/div[1]')
     NAME_INPUT = (By.XPATH, '//*[@data-testid="general-ord-name"]')
+
     INN_INPUT = (By.XPATH, '//*[@data-testid="general-ord-inn"]')
     CABINET_INPUT = (By.XPATH, '//*[@data-testid="account-item"]')
 
