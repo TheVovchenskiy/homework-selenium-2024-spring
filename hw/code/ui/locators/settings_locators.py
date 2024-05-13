@@ -71,6 +71,12 @@ class SettingsPageLocators:
     API_ACCESS_SAVE_BUTTON = (By.XPATH, '//button[@type="submit" and @title="Запросить доступ"]')
     API_ACCESS_CANCEL_BUTTON = (By.XPATH, './/button[@type="button"]')
 
+    LOGOUT_ALL_DEVICES_BUTTON = (By.XPATH, '//button[span[span[contains(text(), "Выйти из других устройств")]]]')
+    LOGOUT_ALL_DEVICES_MESSAGE = (By.XPATH, '//div[contains(text(), "Активные сеансы на других устройствах успешно завершены.")]')
+
+    DELETE_CABINET_BUTTON = (By.XPATH, '//button[span[span[contains(text(), "Удалить кабинет")]]]')
+    DELETE_CABINET_MODAL = (By.XPATH, '//div[contains(text(), "Удалить кабинет ")]')
+
     ERROR_MESSAGE = (By.XPATH, './/span[@role="alert"]')
 
     WARNING = (By.XPATH, './/*[@class="Warning_container__WlR61 VerificationInfo_warning__Fwwj+"]')

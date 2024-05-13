@@ -49,6 +49,13 @@ class BasePage:
                 EC.presence_of_all_elements_located(locator)
             )
 
+    def wait_until_visible(
+        self,
+        locator: Locator,
+        timeout=DEFAULT_TIMEOUT,
+    ) -> WebElement:
+        return self.wait(timeout).until(EC.visibility_of_element_located(locator))
+
     def __init__(self, driver):
         self.driver: webdriver.Chrome = driver
         self.actions = ActionChains(self.driver)

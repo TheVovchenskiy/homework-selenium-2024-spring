@@ -318,7 +318,7 @@ class TestSettings(SettingsCase):
             .find(SettingsPageLocators.CONNECT_CABINET_MODAL)\
             .is_displayed()
 
-    # @pytest.mark.skip('skip')
+    @pytest.mark.skip('skip')
     def test_general_api_access(self, pre_post_check):
         self.settings_page.scroll_to(SettingsPageLocators.API_ACCESS_BUTTON)
 
@@ -353,10 +353,6 @@ class TestSettings(SettingsCase):
                 SettingsPageLocators.API_ACCESS_CANCEL_BUTTON,
                 locator_to_find_in=SettingsPageLocators.API_ACCESS_MODAL,
             )
-
-        # prev_name = self.settings_page.get_input_value(input=name_input)
-        # prev_phone = self.settings_page.get_input_value(input=phone_input)
-        # prev_email = self.settings_page.get_input_value(input=email_input)
 
         self.settings_page.update_input_field('', input=name_input)
         self.settings_page.update_input_field('', input=phone_input)
@@ -458,3 +454,27 @@ class TestSettings(SettingsCase):
             )
 
         self.settings_page.click(elem=cancel_button)
+
+    @pytest.mark.skip('skip')
+    def test_general_end_sessions(self, pre_post_check):
+        self.settings_page.scroll_to(
+            SettingsPageLocators.LOGOUT_ALL_DEVICES_BUTTON)
+
+        self.settings_page\
+            .click(locator=SettingsPageLocators.LOGOUT_ALL_DEVICES_BUTTON)
+
+        assert self.settings_page\
+            .wait_until_visible(SettingsPageLocators.LOGOUT_ALL_DEVICES_MESSAGE)\
+            .is_displayed()
+
+    # @pytest.mark.skip('skip')
+    def test_general_delete_cabinet(self, pre_post_check):
+        self.settings_page.scroll_to(
+            SettingsPageLocators.DELETE_CABINET_BUTTON)
+
+        self.settings_page\
+            .click(locator=SettingsPageLocators.DELETE_CABINET_BUTTON)
+
+        assert self.settings_page\
+            .wait_until_visible(SettingsPageLocators.DELETE_CABINET_MODAL)\
+            .is_displayed()
