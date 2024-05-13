@@ -17,6 +17,11 @@ TIMEOUT_UNTIL_LOADED = 5
 DEFAULT_TIMEOUT = 5
 
 
+def validate_only_one_is_not_none(*args: Any):
+    if sum(map(lambda x: bool(x), args)) != 1:
+        raise TypeError('one of two positional arguments must be None')
+
+
 class PageNotOpenedExeption(Exception):
     pass
 
@@ -95,17 +100,31 @@ class BasePage:
         assert 1 == 1
 
     @allure.step('Click')
-    def click(self, locator: Locator, timeout=None):
-        self.find(locator, timeout=timeout)
-        elem = self.wait(timeout).until(EC.element_to_be_clickable(locator))
-        elem.click()
+    def click(
+        self,
+        *,
+        locator: Locator = None,
+        elem: WebElement = None,
+        timeout=None,
+    ):
+        validate_only_one_is_not_none(elem, locator)
+        if elem is None:
+            elem = self.find(locator, timeout=timeout)
+        self.wait(timeout).until(EC.element_to_be_clickable(elem)).click()
+        # elem = self.wait(timeout).until(EC.element_to_be_clickable(locator))
+        # elem.click()
 
     def update_input_field(
         self,
-        locator: Locator,
         new_input_data: str,
+        *,
+        locator: Locator = None,
+        input: WebElement = None,
     ) -> tuple[str, str]:
-        input = self.find(locator, timeout=DEFAULT_TIMEOUT)
+        validate_only_one_is_not_none(locator, input)
+        if input is None:
+            input = self.find(locator, timeout=DEFAULT_TIMEOUT)
+
         prev_data = self.get_input_value(input=input)
 
         if new_input_data:
@@ -123,12 +142,10 @@ class BasePage:
         One of two params must be None.
         """
         time.sleep(0.5)
-        if bool(locator) + bool(input) == 1:
-            if locator:
-                input = self.find(locator, timeout=DEFAULT_TIMEOUT)
-            return input.get_attribute('value')
-        else:
-            raise TypeError('one of two positional arguments must be None')
+        validate_only_one_is_not_none(locator, input)
+        if locator:
+            input = self.find(locator, timeout=DEFAULT_TIMEOUT)
+        return input.get_attribute('value')
 
     def scroll_to(self, locator: Locator):
         target_elem = self.find(locator)

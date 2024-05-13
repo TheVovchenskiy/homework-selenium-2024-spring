@@ -312,8 +312,149 @@ class TestSettings(SettingsCase):
     def test_general_connected_cabinet(self, pre_post_check):
         self.settings_page.scroll_to_connected_cabinet()
 
-        self.settings_page.click(SettingsPageLocators.CONNECT_CABINET)
+        self.settings_page.click(locator=SettingsPageLocators.CONNECT_CABINET)
 
         assert self.settings_page\
             .find(SettingsPageLocators.CONNECT_CABINET_MODAL)\
             .is_displayed()
+
+    # @pytest.mark.skip('skip')
+    def test_general_api_access(self, pre_post_check):
+        self.settings_page.scroll_to(SettingsPageLocators.API_ACCESS_BUTTON)
+
+        self.settings_page.click(
+            locator=SettingsPageLocators.API_ACCESS_BUTTON)
+
+        time.sleep(0.5)
+        assert self.settings_page\
+            .find(SettingsPageLocators.API_ACCESS_MODAL)\
+            .is_displayed()
+
+        name_input = self.settings_page\
+            .find(
+                SettingsPageLocators.API_ACCESS_NAME_INPUT,
+                locator_to_find_in=SettingsPageLocators.API_ACCESS_MODAL,
+            )
+        phone_input = self.settings_page\
+            .find(
+                SettingsPageLocators.API_ACCESS_PHONE_INPUT,
+                locator_to_find_in=SettingsPageLocators.API_ACCESS_MODAL,
+            )
+        email_input = self.settings_page\
+            .find(
+                SettingsPageLocators.API_ACCESS_EMAIL_INPUT,
+                locator_to_find_in=SettingsPageLocators.API_ACCESS_MODAL,
+            )
+
+        save_button = self.settings_page\
+            .find(SettingsPageLocators.API_ACCESS_SAVE_BUTTON)
+        cancel_button = self.settings_page\
+            .find(
+                SettingsPageLocators.API_ACCESS_CANCEL_BUTTON,
+                locator_to_find_in=SettingsPageLocators.API_ACCESS_MODAL,
+            )
+
+        # prev_name = self.settings_page.get_input_value(input=name_input)
+        # prev_phone = self.settings_page.get_input_value(input=phone_input)
+        # prev_email = self.settings_page.get_input_value(input=email_input)
+
+        self.settings_page.update_input_field('', input=name_input)
+        self.settings_page.update_input_field('', input=phone_input)
+        self.settings_page.update_input_field('', input=email_input)
+
+        assert not save_button.is_enabled()
+
+        self.settings_page.update_input_field('  ', input=name_input)
+        self.settings_page.update_input_field('  ', input=phone_input)
+        self.settings_page.update_input_field('  ', input=email_input)
+
+        assert save_button.is_enabled()
+
+        for name, expected_error in [
+            ('Иван',  None),
+            ('Иван Иванович',  None),
+            ('Иван Иванович-Иванов',  None),
+            ('Иван Иванович-Иванов',  None),
+            ('Иван    Иванович     Иванов',  None),
+            ('  Иван Иванович Иванов  ',  None),
+            ('    ', settings_page.ERR_API_INVALID_NAME),
+        ]:
+            self.settings_page.update_input_field(name, input=name_input)
+            assert save_button.is_enabled()
+
+            self.settings_page.click(elem=save_button)
+
+            assert self.error_match(
+                SettingsPageLocators.API_ACCESS_NAME_BLOCK,
+                expected_error,
+            )
+
+        for phone_number, expected_error in [
+            ('+71234567890', None),
+            ('+3159608363276', None),
+            ('+3159608363276123', settings_page.ERR_API_INCORRECT_PHONE),
+            ('+3159608363276abc', settings_page.ERR_API_INCORRECT_PHONE),
+            ('81234567890',  settings_page.ERR_API_INCORRECT_PHONE),
+            ('+7123456789', settings_page.ERR_API_INCORRECT_PHONE),
+            ('abc',  settings_page.ERR_API_INCORRECT_PHONE),
+            ('  ',  settings_page.ERR_API_INVALID_PHONE),
+        ]:
+            self.settings_page\
+                .update_input_field(phone_number, input=phone_input)
+            assert save_button.is_enabled()
+
+            self.settings_page.click(elem=save_button)
+
+            assert self.error_match(
+                SettingsPageLocators.API_ACCESS_PHONE_BLOCK,
+                expected_error,
+            )
+
+        for email, expected_error in [
+            ('email@example.co', None),
+            ('email@e.x.a.m.p.l.e.com', None),
+            ('email@example.com',  None),
+            ('email@e.c', settings_page.ERR_API_INCORRECT_EMAIL),
+            ('email@example', settings_page.ERR_API_INCORRECT_EMAIL),
+            ('e@@e.com',  settings_page.ERR_API_INCORRECT_EMAIL),
+            ('e@e..com',  settings_page.ERR_API_INCORRECT_EMAIL),
+            ('em..ail@e.com', settings_page.ERR_API_INCORRECT_EMAIL),
+            ('@example.com',  settings_page.ERR_API_INCORRECT_EMAIL),
+            ('email', settings_page.ERR_API_INCORRECT_EMAIL),
+            ('@', settings_page.ERR_API_INCORRECT_EMAIL),
+            ('email', settings_page.ERR_API_INCORRECT_EMAIL),
+            ('em<ail@e.com', settings_page.ERR_API_INCORRECT_EMAIL),
+            ('em>ail@e.com',  settings_page.ERR_API_INCORRECT_EMAIL),
+            ('em,ail@e.com',  settings_page.ERR_API_INCORRECT_EMAIL),
+            ('em"ail@e.com',  settings_page.ERR_API_INCORRECT_EMAIL),
+            ('em:ail@e.com',  settings_page.ERR_API_INCORRECT_EMAIL),
+            ('em;ail@e.com',  settings_page.ERR_API_INCORRECT_EMAIL),
+            ('em[ail@e.com',  settings_page.ERR_API_INCORRECT_EMAIL),
+            ('em]ail@e.com',  settings_page.ERR_API_INCORRECT_EMAIL),
+            ('em@ail@e.com',  settings_page.ERR_API_INCORRECT_EMAIL),
+            ('ma il@e.com',  settings_page.ERR_API_INCORRECT_EMAIL),
+            ('mail@e<e.com', settings_page.ERR_API_INCORRECT_EMAIL),
+            ('mail@e>e.com',  settings_page.ERR_API_INCORRECT_EMAIL),
+            ('mail@e,e.com',  settings_page.ERR_API_INCORRECT_EMAIL),
+            ('mail@e"e.com',  settings_page.ERR_API_INCORRECT_EMAIL),
+            ('mail@e:e.com',  settings_page.ERR_API_INCORRECT_EMAIL),
+            ('mail@e;e.com',  settings_page.ERR_API_INCORRECT_EMAIL),
+            ('mail@e[e.com',  settings_page.ERR_API_INCORRECT_EMAIL),
+            ('mail@e]e.com',  settings_page.ERR_API_INCORRECT_EMAIL),
+            ('mail@e@e.com',  settings_page.ERR_API_INCORRECT_EMAIL),
+            ('mail@e e.com',  settings_page.ERR_API_INCORRECT_EMAIL),
+            (' mail@e.com',  None),
+            ('mail@e.com ',  None),
+            ('    ',  settings_page.ERR_API_INVALID_EMAIL),
+        ]:
+            self.settings_page.update_input_field(email, input=email_input)
+            assert save_button.is_enabled()
+
+            self.settings_page.click(elem=save_button)
+
+            assert self.error_match(
+                SettingsPageLocators.API_ACCESS_EMAIL_BLOCK,
+                expected_error,
+            )
+
+        self.settings_page.click(elem=cancel_button)

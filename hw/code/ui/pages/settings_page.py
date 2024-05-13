@@ -23,6 +23,14 @@ ERR_INVALID_INN_LENGTH = 'Длина ИНН должна быть 12 симво�
 ERR_INVALID_INN = 'Невалидный ИНН'
 ERR_INCORRECT_INN = 'Некорректный ИНН'
 
+ERR_API_INVALID_NAME = 'Некорректное имя'
+
+ERR_API_INVALID_PHONE = 'Некорректный телефон'
+ERR_API_INCORRECT_PHONE = 'Некорректный формат. Пример: +71234567890'
+
+ERR_API_INVALID_EMAIL = 'Некорректный email'
+ERR_API_INCORRECT_EMAIL = 'Некорректный формат. Пример: example@mail.ru'
+
 DEFAULT_PHONE = '+71234567890'
 DEFAULT_NAME = 'Иван'
 DEFAULT_INN = '123456789012'
@@ -41,7 +49,7 @@ class SettingsPage(MainPage):
 
     def press_button(self, locator: Locator):
         time.sleep(0.5)
-        self.click(locator, timeout=5)
+        self.click(locator=locator, timeout=5)
         time.sleep(0.5)
 
     def press_save(self, expect_save=False):
@@ -69,32 +77,32 @@ class SettingsPage(MainPage):
 
     def update_phone_number(self, new_phone_number: str) -> tuple[str, str]:
         return self.update_input_field(
-            SettingsPageLocators.PHONE_INPUT,
             new_phone_number,
+            locator=SettingsPageLocators.PHONE_INPUT,
         )
 
     def update_name(self, new_name: str) -> tuple[str, str]:
         return self.update_input_field(
-            SettingsPageLocators.NAME_INPUT,
             new_name,
+            locator=SettingsPageLocators.NAME_INPUT,
         )
 
     def update_inn(self, new_inn: str) -> tuple[str, str]:
         return self.update_input_field(
-            SettingsPageLocators.INN_INPUT,
             new_inn,
+            locator=SettingsPageLocators.INN_INPUT,
         )
 
     def update_cabinet(self, new_cabinet: str) -> tuple[str, str]:
         return self.update_input_field(
-            SettingsPageLocators.CABINET_INPUT,
             new_cabinet,
+            locator=SettingsPageLocators.CABINET_INPUT,
         )
 
     def update_email(self, id: int, email: str):
         return self.update_input_field(
-            SettingsPageLocators.ADDITIONAL_EMAIL_INPUT(id),
             email,
+            locator=SettingsPageLocators.ADDITIONAL_EMAIL_INPUT(id),
         )
 
     def has_warning(self, message: str) -> bool:
@@ -103,7 +111,7 @@ class SettingsPage(MainPage):
         return message in elem.text
 
     def remove_additional_email(self):
-        self.click(SettingsPageLocators.REMOVE_EMAIL_BUTTON, timeout=5)
+        self.click(locator=SettingsPageLocators.REMOVE_EMAIL_BUTTON, timeout=5)
 
     def open_language_dropdown(self):
         elem = self.find(SettingsPageLocators.LANGUAGE_BUTTON)
@@ -111,7 +119,6 @@ class SettingsPage(MainPage):
         id = elem.get_attribute('aria-owns')
         print(id)
         self.wait().until(EC.element_to_be_clickable(elem)).click()
-        # self.click(SettingsPageLocators.LANGUAGE_BUTTON)
         self.wait().until(EC.visibility_of_element_located(
             SettingsPageLocators.LANGUAGE_DROPDOWN(id)
         ))
@@ -141,7 +148,7 @@ class SettingsPage(MainPage):
             ))
             self.assert_chosen_language(ru_elem)
 
-            self.click(SettingsPageLocators.LANGUAGE_EN(id))
+            self.click(locator=SettingsPageLocators.LANGUAGE_EN(id))
             time.sleep(1)
 
             id = self.open_language_dropdown()
@@ -156,7 +163,7 @@ class SettingsPage(MainPage):
             ))
             self.assert_chosen_language(en_elem)
 
-            self.click(SettingsPageLocators.LANGUAGE_RU(id))
+            self.click(locator=SettingsPageLocators.LANGUAGE_RU(id))
 
             id = self.open_language_dropdown()
 
@@ -165,4 +172,4 @@ class SettingsPage(MainPage):
             ))
             self.assert_chosen_language(ru_elem)
 
-        self.click(SettingsPageLocators.LANGUAGE_BUTTON)
+        self.click(locator=SettingsPageLocators.LANGUAGE_BUTTON)
