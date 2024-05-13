@@ -125,12 +125,11 @@ class SettingsPage(MainPage):
     def assert_chosen_language(self, lang_elem: WebElement):
         assert lang_elem.get_attribute('aria-selected') == 'true'
 
+    def scroll_to_connected_cabinet(self):
+        self.scroll_to(SettingsPageLocators.CONNECT_CABINET)
+
     def change_language(self):
-        target_elem = self.find(SettingsPageLocators.LANGUAGE_BUTTON)
-        self.driver.execute_script(
-            "arguments[0].scrollIntoView(true);",
-            target_elem,
-        )
+        self.scroll_to(SettingsPageLocators.LANGUAGE_BUTTON)
 
         curr_language = self.get_curr_language()
 

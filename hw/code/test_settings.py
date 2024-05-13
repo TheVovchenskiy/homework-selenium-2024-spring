@@ -307,3 +307,13 @@ class TestSettings(SettingsCase):
     def test_general_language(self, pre_post_check):
         self.settings_page.change_language()
         self.settings_page.change_language()
+
+    @pytest.mark.skip('skip')
+    def test_general_connected_cabinet(self, pre_post_check):
+        self.settings_page.scroll_to_connected_cabinet()
+
+        self.settings_page.click(SettingsPageLocators.CONNECT_CABINET)
+
+        assert self.settings_page\
+            .find(SettingsPageLocators.CONNECT_CABINET_MODAL)\
+            .is_displayed()

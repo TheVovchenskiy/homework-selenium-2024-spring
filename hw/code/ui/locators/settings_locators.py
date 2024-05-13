@@ -47,6 +47,9 @@ class SettingsPageLocators:
     def LANGUAGE_EN(id: str):
         return (By.ID, f'{id}-en')
 
+    CONNECT_CABINET = (By.XPATH, '//*[@id="settings"]/div/form/section[5]/div[2]')
+    CONNECT_CABINET_MODAL = (By.ID, '_modal_33')
+
     ERROR_MESSAGE = (By.XPATH, '//span[@role="alert"]')
 
     WARNING = (By.XPATH, '//*[@class="Warning_container__WlR61 VerificationInfo_warning__Fwwj+"]')

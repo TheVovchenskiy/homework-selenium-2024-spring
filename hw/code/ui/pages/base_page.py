@@ -129,3 +129,10 @@ class BasePage:
             return input.get_attribute('value')
         else:
             raise TypeError('one of two positional arguments must be None')
+
+    def scroll_to(self, locator: Locator):
+        target_elem = self.find(locator)
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView(true);",
+            target_elem,
+        )
