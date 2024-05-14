@@ -59,6 +59,7 @@ class BasePage:
     def __init__(self, driver):
         self.driver: webdriver.Chrome = driver
         self.actions = ActionChains(self.driver)
+        self.driver.get(self.url)
         self.is_opened()
 
     def wait(self, timeout=None):
@@ -75,6 +76,11 @@ class BasePage:
                 return True
 
         raise TimeoutError
+
+    def assert_window_count(self, window_count: int, timeout=DEFAULT_TIMEOUT):
+        self.wait(timeout).until(EC.number_of_windows_to_be(window_count))
+
+        assert len(self.driver.window_handles) == window_count
 
     def find(
             self,

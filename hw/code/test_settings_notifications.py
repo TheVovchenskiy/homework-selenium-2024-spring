@@ -15,19 +15,6 @@ from ui.fixtures import *
 
 
 class SettingsNotificationsCase(SettingsCase):
-    def settings_setup(self):
-        self.main_page.go_to_settings()
-        self.settings_page = SettingsPage(self.driver)
-        self.settings_page.wait_until_loaded([
-            SettingsPageLocators.PHONE_INPUT,
-            SettingsPageLocators.EMAIL_INPUT,
-            SettingsPageLocators.NAME_INPUT,
-            SettingsPageLocators.INN_INPUT,
-            SettingsPageLocators.CABINET_INPUT,
-        ])
-
-        self.change_section()
-
     def disable_all_switches(self):
         if self.settings_page.find(locators.EMAIL_CHECKBOX).is_selected():
             self.settings_page.click(locator=locators.EMAIL_CHECKBOX_BUTTON)

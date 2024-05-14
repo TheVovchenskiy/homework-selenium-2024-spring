@@ -6,6 +6,7 @@ from _pytest.fixtures import FixtureRequest
 
 from ui.pages.main_page import MainPage
 from ui.pages.login_page import LoginPage
+from ui.locators.base_locators import BasePageLocators
 
 
 CLICK_RETRY = 3
@@ -37,16 +38,14 @@ class BaseCase:
         self.config = config
 
         if config['auth']:
-            self.login_page = LoginPage(driver)
             self.login_setup()
         else:
             self.main_page = MainPage(driver)
 
         self.settings_setup()
 
-        # return self
-
 
 class LoginCase(BaseCase):
     def login_setup(self):
+        self.login_page = LoginPage(self.driver)
         self.main_page = self.login_page.login()

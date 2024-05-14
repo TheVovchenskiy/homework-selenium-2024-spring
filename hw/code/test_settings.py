@@ -14,7 +14,7 @@ from ui.fixtures import *
 
 class SettingsCase(LoginCase):
     def settings_setup(self):
-        self.main_page.go_to_settings()
+        # self.main_page.go_to_settings()
         self.settings_page = SettingsPage(self.driver)
         self.settings_page.wait_until_loaded([
             SettingsPageLocators.PHONE_INPUT,
