@@ -12,6 +12,8 @@ class SettingsLogsPageLocators:
 
     FILTER_MODAL = (By.XPATH, '//div[@data-popper-reference-hidden and @data-popper-escaped and @data-popper-placement and @data-popper-interactive]')
 
+    SEARCH_FILTER_INPUT = (By.XPATH, './/input[@type="search"]')
+
     OBJECT_TYPE_BUTTON = filter_section_button('Тип объекта')
     WHAT_CHANGED_BUTTON = filter_section_button('Что изменилось')
     CHANGE_AUTHOR_BUTTON = filter_section_button('Автор изменения')

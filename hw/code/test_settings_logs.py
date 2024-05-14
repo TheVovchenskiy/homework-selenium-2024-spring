@@ -36,13 +36,13 @@ class SettingsLogsCase(SettingsCase):
 class TestSettingsLogs(SettingsLogsCase):
     @pytest.fixture
     def filters_modal(self):
-        try:
-            if self.settings_page\
-                .find(locators.RESET_ALL_BUTTON, timeout=1)\
-                    .is_displayed():
-                self.settings_page.click(locators.RESET_ALL_BUTTON)
-        except TimeoutException:
-            pass
+        # try:
+        #     if self.settings_page\
+        #         .find(locators.RESET_ALL_BUTTON, timeout=1)\
+        #             .is_displayed():
+        #         self.settings_page.click(locators.RESET_ALL_BUTTON)
+        # except TimeoutException:
+        #     pass
 
         self.settings_page.click(locator=locators.FILTER_BUTTON)
 
@@ -111,9 +111,16 @@ class TestSettingsLogs(SettingsLogsCase):
         with pytest.raises(TimeoutException):
             self.settings_page.find(locators.RESET_ALL_BUTTON, timeout=0.5)
 
-    # @pytest.mark.skip('skip')
-    def test_search(self):
-        pass
+    @pytest.mark.skip('skip')
+    def test_search(self, filters_modal):
+        search_input = self.settings_page.find(
+            locators.SEARCH_FILTER_INPUT,
+            locator_to_find_in=locators.FILTER_MODAL,
+        )
+
+        search_input.send_keys('кампания')
+
+        assert len(self.settings_page.find_all(locators.CHECKBOX)) == 1
 
     # @pytest.mark.skip('skip')
     def test_calendar(self):
