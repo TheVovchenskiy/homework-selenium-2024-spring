@@ -24,6 +24,11 @@ class SettingsCase(LoginCase):
             SettingsPageLocators.CABINET_INPUT,
         ])
 
+        self.change_section()
+    
+    def change_section(self):
+        pass
+
     def error_match(self, locator: Locator, expected_error: Optional[str]) -> bool:
         time.sleep(0.5)
         if expected_error is None:
@@ -62,13 +67,13 @@ class TestSettings(SettingsCase):
             'Удалить кабинет',
         ])]
     )
-    def test_general_layout(self, expected_values):
+    def test_layout(self, expected_values):
         assert all(
             map(lambda item: item in self.driver.page_source, expected_values)
         )
 
     @pytest.mark.skip('skip')
-    def test_general_phone_input(self, pre_post_check):
+    def test_phone_input(self, pre_post_check):
         prev_phone_number = self.settings_page.get_input_value(
             locator=SettingsPageLocators.PHONE_INPUT,
         )
@@ -113,7 +118,7 @@ class TestSettings(SettingsCase):
         self.settings_page.press_save()
 
     @pytest.mark.skip('skip')
-    def test_general_email_input(self, pre_post_check):
+    def test_email_input(self, pre_post_check):
         self.settings_page.press_add_email()
 
         assert self.settings_page.save_cancel_is_visible()
@@ -180,7 +185,7 @@ class TestSettings(SettingsCase):
         self.settings_page.press_save()
 
     @pytest.mark.skip('skip')
-    def test_general_name_input(self, pre_post_check):
+    def test_name_input(self, pre_post_check):
         prev_name = self.settings_page.get_input_value(
             locator=SettingsPageLocators.NAME_INPUT,
         )
@@ -228,7 +233,7 @@ class TestSettings(SettingsCase):
         self.settings_page.press_save()
 
     @pytest.mark.skip('skip')
-    def test_general_inn(self, pre_post_check):
+    def test_inn(self, pre_post_check):
         prev_inn = self.settings_page.get_input_value(
             locator=SettingsPageLocators.INN_INPUT,
         )
@@ -267,7 +272,7 @@ class TestSettings(SettingsCase):
         self.settings_page.press_save()
 
     @pytest.mark.skip('skip')
-    def test_general_cabinet_input(self, pre_post_check):
+    def test_cabinet_input(self, pre_post_check):
         prev_cabinet = self.settings_page.get_input_value(
             locator=SettingsPageLocators.CABINET_INPUT,
         )
@@ -304,12 +309,12 @@ class TestSettings(SettingsCase):
         self.settings_page.press_save()
 
     @pytest.mark.skip('skip')
-    def test_general_language(self, pre_post_check):
+    def test_language(self, pre_post_check):
         self.settings_page.change_language()
         self.settings_page.change_language()
 
     @pytest.mark.skip('skip')
-    def test_general_connected_cabinet(self, pre_post_check):
+    def test_connected_cabinet(self, pre_post_check):
         self.settings_page.scroll_to_connected_cabinet()
 
         self.settings_page.click(locator=SettingsPageLocators.CONNECT_CABINET)
@@ -319,7 +324,7 @@ class TestSettings(SettingsCase):
             .is_displayed()
 
     @pytest.mark.skip('skip')
-    def test_general_api_access(self, pre_post_check):
+    def test_api_access(self, pre_post_check):
         self.settings_page.scroll_to(SettingsPageLocators.API_ACCESS_BUTTON)
 
         self.settings_page.click(
@@ -456,7 +461,7 @@ class TestSettings(SettingsCase):
         self.settings_page.click(elem=cancel_button)
 
     @pytest.mark.skip('skip')
-    def test_general_end_sessions(self, pre_post_check):
+    def test_end_sessions(self, pre_post_check):
         self.settings_page.scroll_to(
             SettingsPageLocators.LOGOUT_ALL_DEVICES_BUTTON)
 
@@ -467,8 +472,8 @@ class TestSettings(SettingsCase):
             .wait_until_visible(SettingsPageLocators.LOGOUT_ALL_DEVICES_MESSAGE)\
             .is_displayed()
 
-    # @pytest.mark.skip('skip')
-    def test_general_delete_cabinet(self, pre_post_check):
+    @pytest.mark.skip('skip')
+    def test_delete_cabinet(self, pre_post_check):
         self.settings_page.scroll_to(
             SettingsPageLocators.DELETE_CABINET_BUTTON)
 
@@ -478,3 +483,4 @@ class TestSettings(SettingsCase):
         assert self.settings_page\
             .wait_until_visible(SettingsPageLocators.DELETE_CABINET_MODAL)\
             .is_displayed()
+

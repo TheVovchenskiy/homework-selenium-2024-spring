@@ -1,0 +1,87 @@
+import time
+from typing import Optional
+from _pytest.fixtures import FixtureRequest
+from selenium.common.exceptions import TimeoutException
+
+from base import LoginCase
+from test_settings import SettingsCase
+from ui.locators.base_locators import Locator
+from ui.locators.settings_locators import SettingsPageLocators
+from ui.locators.settings_notifications import SettingsNotificationsPageLocators as locators
+from ui.pages.settings_page import SettingsPage
+from ui.pages import settings_page
+
+from ui.fixtures import *
+
+
+class SettingsNotificationsCase(SettingsCase):
+    def settings_setup(self):
+        self.main_page.go_to_settings()
+        self.settings_page = SettingsPage(self.driver)
+        self.settings_page.wait_until_loaded([
+            SettingsPageLocators.PHONE_INPUT,
+            SettingsPageLocators.EMAIL_INPUT,
+            SettingsPageLocators.NAME_INPUT,
+            SettingsPageLocators.INN_INPUT,
+            SettingsPageLocators.CABINET_INPUT,
+        ])
+
+        self.change_section()
+
+    def disable_all_switches(self):
+        if self.settings_page.find(locators.EMAIL_CHECKBOX).is_selected():
+            self.settings_page.click(locator=locators.EMAIL_CHECKBOX_BUTTON)
+
+        if self.settings_page.find(locators.NOTIFICATIONS_CHECKBOX).is_selected():
+            self.settings_page\
+                .click(locator=locators.NOTIFICATIONS_CHECKBOX_BUTTON)
+
+        if self.settings_page.find(locators.TELEGRAM_CHECKBOX).is_selected():
+            self.settings_page\
+                .click(locator=locators.TELEGRAM_CHECKBOX_BUTTON)
+
+    def enable_all_switches(self):
+        if not self.settings_page.find(locators.EMAIL_CHECKBOX).is_selected():
+            self.settings_page.click(locator=locators.EMAIL_CHECKBOX_BUTTON)
+
+        if not self.settings_page.find(locators.NOTIFICATIONS_CHECKBOX).is_selected():
+            self.settings_page.click(
+                locator=locators.NOTIFICATIONS_CHECKBOX_BUTTON)
+
+        # time.sleep(1)
+        if not self.settings_page.find(locators.TELEGRAM_CHECKBOX).is_selected():
+            self.settings_page.click(locator=locators.TELEGRAM_CHECKBOX_BUTTON)
+
+    def change_section(self):
+        self.settings_page.click(locator=locators.TAB_ITEM)
+
+        self.settings_page.wait_until_loaded([
+            locators.EMAIL_CHECKBOX,
+            locators.NOTIFICATIONS_CHECKBOX,
+        ])
+
+
+class TestSettingsNotifications(SettingsNotificationsCase):
+    @pytest.mark.skip('skip')
+    def test_disabled_checkboxes(self):
+        self.disable_all_switches()
+
+        assert self.settings_page\
+            .find(locators.WARNING)\
+            .is_displayed()
+
+        assert len(
+            self.settings_page.find_all(locators.DISABLED_CHECKBOXES)
+        ) == 8
+
+    @pytest.mark.skip('skip')
+    def test_enabled_checkboxes(self):
+        self.enable_all_switches()
+
+        with pytest.raises(TimeoutException):
+            self.settings_page\
+                .find(locators.WARNING, timeout=0.5)\
+                .is_displayed()
+
+        with pytest.raises(TimeoutException):
+            self.settings_page.find_all(locators.DISABLED_CHECKBOXES, timeout=0.5)

@@ -118,8 +118,9 @@ class BasePage:
         if elem is None:
             elem = self.find(locator, timeout=timeout)
         self.wait(timeout).until(EC.element_to_be_clickable(elem)).click()
-        # elem = self.wait(timeout).until(EC.element_to_be_clickable(locator))
-        # elem.click()
+
+    # def click_checkbox(self, locator: Locator) -> bool:
+    #     self.wait().until(Ec.eleme)
 
     def update_input_field(
         self,
