@@ -1,7 +1,9 @@
+import datetime
 import time
 from typing import Optional
 from _pytest.fixtures import FixtureRequest
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.keys import Keys
 
 from base import LoginCase
 from test_settings import SettingsCase
@@ -24,6 +26,7 @@ class SettingsLogsCase(SettingsCase):
 
         self.settings_page.wait_until_loaded([
             locators.FILTER_BUTTON,
+            locators.CALENDAR_BUTTON,
         ])
 
     def checkboxes_checked_count(self):
@@ -36,19 +39,11 @@ class SettingsLogsCase(SettingsCase):
 class TestSettingsLogs(SettingsLogsCase):
     @pytest.fixture
     def filters_modal(self):
-        # try:
-        #     if self.settings_page\
-        #         .find(locators.RESET_ALL_BUTTON, timeout=1)\
-        #             .is_displayed():
-        #         self.settings_page.click(locators.RESET_ALL_BUTTON)
-        # except TimeoutException:
-        #     pass
-
         self.settings_page.click(locator=locators.FILTER_BUTTON)
 
         time.sleep(0.5)
         assert self.settings_page\
-            .find(locators.FILTER_MODAL)\
+            .find(locators.MODAL)\
             .is_displayed()
 
     @pytest.mark.skip('skip')
@@ -115,13 +110,37 @@ class TestSettingsLogs(SettingsLogsCase):
     def test_search(self, filters_modal):
         search_input = self.settings_page.find(
             locators.SEARCH_FILTER_INPUT,
-            locator_to_find_in=locators.FILTER_MODAL,
+            locator_to_find_in=locators.MODAL,
         )
 
         search_input.send_keys('кампания')
 
         assert len(self.settings_page.find_all(locators.CHECKBOX)) == 1
 
-    # @pytest.mark.skip('skip')
+    @pytest.mark.skip('skip')
     def test_calendar(self):
-        pass
+        self.settings_page.click(locator=locators.CALENDAR_BUTTON)
+
+        self.settings_page.wait_until_loaded([locators.MODAL])
+        assert self.settings_page\
+            .find(locators.MODAL)\
+            .is_displayed()
+
+        start_date_input = self.settings_page.find(locators.START_DATE_INPUT)
+        end_date_input = self.settings_page.find(locators.END_DATE_INPUT)
+
+        today = datetime.datetime.now().date()
+        yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
+        yesterday = yesterday.date()
+
+        start_date_input.send_keys('999999' + Keys.TAB)
+        assert str(today) == self.settings_page\
+            .get_input_value(locator=locators.START_DATE_INPUT)
+
+        end_date_input.send_keys(
+            f'{yesterday.day}{yesterday.month}{yesterday.year}' + Keys.TAB)
+
+        assert str(yesterday) == self.settings_page\
+            .get_input_value(locator=locators.START_DATE_INPUT)
+        assert str(today) == self.settings_page\
+            .get_input_value(locator=locators.END_DATE_INPUT)
