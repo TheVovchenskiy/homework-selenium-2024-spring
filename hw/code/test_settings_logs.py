@@ -63,11 +63,9 @@ class TestSettingsLogs(SettingsLogsCase):
 
         self.settings_page.click(locator=locators.WHAT_CHANGED_BUTTON)
 
-        time.sleep(1)
+        time.sleep(0.5)
         checkbox_buttons = self.settings_page\
             .find_all(locators.CHECKBOX_BUTTON)
-
-        # assert len(checkbox_buttons) == 39
 
         self.settings_page.click(elem=checkbox_buttons[0])
 
@@ -87,3 +85,36 @@ class TestSettingsLogs(SettingsLogsCase):
         self.settings_page.click(locator=locators.RESET_ALL_BUTTON)
         self.settings_page.click(locator=locators.OBJECT_TYPE_BUTTON)
         assert self.checkboxes_checked_count() == 0
+
+    @pytest.mark.skip('skip')
+    def test_save_filters(self, filters_modal):
+        checkbox_buttons = self.settings_page\
+            .find_all(locators.CHECKBOX_BUTTON)
+
+        self.settings_page.click(elem=checkbox_buttons[0])
+
+        self.settings_page.click(locator=locators.WHAT_CHANGED_BUTTON)
+
+        time.sleep(0.5)
+        checkbox_buttons = self.settings_page\
+            .find_all(locators.CHECKBOX_BUTTON)
+
+        self.settings_page.click(elem=checkbox_buttons[0])
+
+        self.settings_page.click(locator=locators.SAVE_BUTTON)
+
+        assert self.settings_page\
+            .find(locators.RESET_ALL_BUTTON).is_displayed()
+
+        self.settings_page.click(locator=locators.RESET_ALL_BUTTON)
+
+        with pytest.raises(TimeoutException):
+            self.settings_page.find(locators.RESET_ALL_BUTTON, timeout=0.5)
+
+    # @pytest.mark.skip('skip')
+    def test_search(self):
+        pass
+
+    # @pytest.mark.skip('skip')
+    def test_calendar(self):
+        pass
