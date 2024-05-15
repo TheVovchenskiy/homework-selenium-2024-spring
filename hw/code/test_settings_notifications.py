@@ -1,15 +1,8 @@
-import time
-from typing import Optional
-from _pytest.fixtures import FixtureRequest
 from selenium.common.exceptions import TimeoutException
 
 from base import LoginCase
 from test_settings import SettingsCase
-from ui.locators.base_locators import Locator
-from ui.locators.settings_locators import SettingsPageLocators
 from ui.locators.settings_notifications import SettingsNotificationsPageLocators as locators
-from ui.pages.settings_page import SettingsPage
-from ui.pages import settings_page
 
 from ui.fixtures import *
 
@@ -35,7 +28,6 @@ class SettingsNotificationsCase(SettingsCase):
             self.settings_page.click(
                 locator=locators.NOTIFICATIONS_CHECKBOX_BUTTON)
 
-        # time.sleep(1)
         if not self.settings_page.find(locators.TELEGRAM_CHECKBOX).is_selected():
             self.settings_page.click(locator=locators.TELEGRAM_CHECKBOX_BUTTON)
 
@@ -49,7 +41,7 @@ class SettingsNotificationsCase(SettingsCase):
 
 
 class TestSettingsNotifications(SettingsNotificationsCase):
-    @pytest.mark.skip('skip')
+
     def test_disabled_checkboxes(self):
         self.disable_all_switches()
 
@@ -61,7 +53,6 @@ class TestSettingsNotifications(SettingsNotificationsCase):
             self.settings_page.find_all(locators.DISABLED_CHECKBOXES)
         ) == 8
 
-    @pytest.mark.skip('skip')
     def test_enabled_checkboxes(self):
         self.enable_all_switches()
 
@@ -71,4 +62,5 @@ class TestSettingsNotifications(SettingsNotificationsCase):
                 .is_displayed()
 
         with pytest.raises(TimeoutException):
-            self.settings_page.find_all(locators.DISABLED_CHECKBOXES, timeout=0.5)
+            self.settings_page.find_all(
+                locators.DISABLED_CHECKBOXES, timeout=0.5)

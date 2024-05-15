@@ -1,6 +1,9 @@
 from selenium.webdriver.common.by import By
 
 
+from ui.locators.base_locators import locator_xpath_parent
+
+
 class SettingsLogsPageLocators:
     TAB_ITEM = (By.ID, 'tab-settings.logs')
 
@@ -20,7 +23,9 @@ class SettingsLogsPageLocators:
     CHANGE_AUTHOR_BUTTON = filter_section_button('Автор изменения')
 
     CHECKBOX = (By.XPATH, '//input[@type="checkbox"]')
-    CHECKBOX_BUTTON = (By.XPATH, CHECKBOX[1] + '/../..')
+    CHECKBOX_BUTTON = locator_xpath_parent(CHECKBOX, 2)
+
+    TODAY_BUTTON = (By.XPATH, '//button[span[contains(text(), "Сегодня")]]')
 
     START_DATE_INPUT = (By.NAME, 'startDate')
     END_DATE_INPUT = (By.NAME, 'endDate')

@@ -1,6 +1,6 @@
 from selenium.webdriver.common.by import By
 
-from ui.locators.base_locators import Locator
+from ui.locators.base_locators import Locator, locator_xpath_parent
 
 
 class SettingsPageLocators:
@@ -8,37 +8,35 @@ class SettingsPageLocators:
 
     SETTINGS_CONTAINER = (By.ID, 'settings')
 
-    PHONE_BLOCK = (
-        By.XPATH, '//*[@id="settings"]/div/form/section[2]/div[2]/div[1]')
     PHONE_INPUT = (By.XPATH, '//*[@data-testid="general-phone"]')
+    PHONE_BLOCK = locator_xpath_parent(PHONE_INPUT, 2)
 
     EMAIL_INPUT = (By.XPATH, '//*[@data-testid="general-email"]')
     ADD_EMAIL_BUTTON = (By.XPATH, '//*[@data-testid="add-email"]')
-    ADDITIONAL_EMAIL_BLOCK = (
-        By.XPATH, '//*[@class="vkuiFormItem__removable vkuiInternalFormItem__removable"]')
 
     @staticmethod
     def ADDITIONAL_EMAIL_INPUT(id: int) -> Locator:
         return (By.XPATH, f'//*[@data-testid="email-{id}"]')
+    
+    @staticmethod
+    def ADDITIONAL_EMAIL_BLOCK(id: int) -> Locator:
+        return locator_xpath_parent(SettingsPageLocators.ADDITIONAL_EMAIL_INPUT(id), 5)
+
     REMOVE_EMAIL_BUTTON = (By.XPATH, '//*[@aria-label="Удалить"]')
 
-    NAME_BLOCK = (
-        By.XPATH, '//*[@id="settings"]/div/form/section[3]/div[2]/div[1]')
     NAME_INPUT = (By.XPATH, '//*[@data-testid="general-ord-name"]')
+    NAME_BLOCK = locator_xpath_parent(NAME_INPUT, 2)
 
-    INN_BLOCK = (
-        By.XPATH, '//*[@id="settings"]/div/form/section[3]/div[2]/div[2]')
     INN_INPUT = (By.XPATH, '//*[@data-testid="general-ord-inn"]')
+    INN_BLOCK = locator_xpath_parent(INN_INPUT, 2)
 
-    CABINET_BLOCK = (
-        By.XPATH, '//*[@id="settings"]/div/form/section[4]/div[2]/div[1]')
     CABINET_INPUT = (By.XPATH, '//*[@data-testid="account-item"]')
+    CABINET_BLOCK = locator_xpath_parent(CABINET_INPUT, 2)
 
     SAVE_BUTTON = (By.XPATH, '//*[@data-testid="settings-save"]')
     CANCEL_BUTTON = (By.XPATH, '//*[@data-testid="settings-cancel"]')
 
-    LANGUAGE_CURR_LANG = (
-        By.XPATH, '//*[@id="settings"]/div/form/section[4]/div[2]/div[2]/div/div/div/div/div/span')
+    LANGUAGE_CURR_LANG = (By.XPATH, '//span[contains(text(), "RU") or contains(text(), "EN")]')
     LANGUAGE_BUTTON = (By.XPATH, '//*[@data-testid="interface-language"]')
 
     @staticmethod
@@ -53,11 +51,11 @@ class SettingsPageLocators:
     def LANGUAGE_EN(id: str):
         return (By.ID, f'{id}-en')
 
-    CONNECT_CABINET = (By.XPATH, '//*[@id="settings"]/div/form/section[5]/div[2]')
-    CONNECT_CABINET_MODAL = (By.ID, '_modal_33')
+    CONNECT_CABINET = (By.XPATH, '//div[div[div[span[contains(text(), "Привязать кабинет myTarget")]]]]')
+    CONNECT_CABINET_MODAL = (By.XPATH, '//div[contains(@id, "_modal_")]')
 
     API_ACCESS_BUTTON = (By.CLASS_NAME, 'ApiAccess_wrapper__QEwLb')
-    API_ACCESS_MODAL = (By.ID, '_modal_32')
+    API_ACCESS_MODAL = (By.XPATH, '//div[contains(@id, "_modal_")]')
 
     API_ACCESS_NAME_BLOCK = (By.XPATH, '//*[@name="name"]')
     API_ACCESS_NAME_INPUT = (By.XPATH, './/input[@placeholder="Введите ФИО"]')

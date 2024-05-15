@@ -1,17 +1,10 @@
 import datetime
 import time
-from typing import Optional
-from _pytest.fixtures import FixtureRequest
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
 
-from base import LoginCase
 from test_settings import SettingsCase
-from ui.locators.base_locators import Locator
-from ui.locators.settings_locators import SettingsPageLocators
 from ui.locators.settings_logs import SettingsLogsPageLocators as locators
-from ui.pages.settings_page import SettingsPage
-from ui.pages import settings_page
 
 from ui.fixtures import *
 
@@ -41,12 +34,10 @@ class TestSettingsLogs(SettingsLogsCase):
     def filters_modal(self):
         self.settings_page.click(locator=locators.FILTER_BUTTON)
 
-        time.sleep(0.5)
         assert self.settings_page\
-            .find(locators.MODAL)\
+            .wait_until_visible(locators.MODAL)\
             .is_displayed()
 
-    @pytest.mark.skip('skip')
     def test_checkboxes_reset(self, filters_modal):
         checkbox_buttons = self.settings_page\
             .find_all(locators.CHECKBOX_BUTTON)
@@ -54,20 +45,19 @@ class TestSettingsLogs(SettingsLogsCase):
         self.settings_page.click(elem=checkbox_buttons[0])
 
         assert self.settings_page\
-            .find(locators.RESET_BUTTON).is_displayed()
+            .wait_until_visible(locators.RESET_BUTTON).is_displayed()
 
         self.settings_page.click(locator=locators.WHAT_CHANGED_BUTTON)
 
-        time.sleep(0.5)
         checkbox_buttons = self.settings_page\
             .find_all(locators.CHECKBOX_BUTTON)
 
         self.settings_page.click(elem=checkbox_buttons[0])
 
         assert self.settings_page\
-            .find(locators.RESET_BUTTON).is_displayed()
+            .wait_until_visible(locators.RESET_BUTTON).is_displayed()
         assert self.settings_page\
-            .find(locators.RESET_ALL_BUTTON).is_displayed()
+            .wait_until_visible(locators.RESET_ALL_BUTTON).is_displayed()
 
         self.settings_page.click(locator=locators.RESET_BUTTON)
         assert self.checkboxes_checked_count() == 0
@@ -81,7 +71,6 @@ class TestSettingsLogs(SettingsLogsCase):
         self.settings_page.click(locator=locators.OBJECT_TYPE_BUTTON)
         assert self.checkboxes_checked_count() == 0
 
-    @pytest.mark.skip('skip')
     def test_save_filters(self, filters_modal):
         checkbox_buttons = self.settings_page\
             .find_all(locators.CHECKBOX_BUTTON)
@@ -90,7 +79,6 @@ class TestSettingsLogs(SettingsLogsCase):
 
         self.settings_page.click(locator=locators.WHAT_CHANGED_BUTTON)
 
-        time.sleep(0.5)
         checkbox_buttons = self.settings_page\
             .find_all(locators.CHECKBOX_BUTTON)
 
@@ -99,14 +87,13 @@ class TestSettingsLogs(SettingsLogsCase):
         self.settings_page.click(locator=locators.SAVE_BUTTON)
 
         assert self.settings_page\
-            .find(locators.RESET_ALL_BUTTON).is_displayed()
+            .wait_until_visible(locators.RESET_ALL_BUTTON).is_displayed()
 
         self.settings_page.click(locator=locators.RESET_ALL_BUTTON)
 
         with pytest.raises(TimeoutException):
             self.settings_page.find(locators.RESET_ALL_BUTTON, timeout=0.5)
 
-    @pytest.mark.skip('skip')
     def test_search(self, filters_modal):
         search_input = self.settings_page.find(
             locators.SEARCH_FILTER_INPUT,
@@ -117,17 +104,23 @@ class TestSettingsLogs(SettingsLogsCase):
 
         assert len(self.settings_page.find_all(locators.CHECKBOX)) == 1
 
-    @pytest.mark.skip('skip')
     def test_calendar(self):
+        time.sleep(0.5)
         self.settings_page.click(locator=locators.CALENDAR_BUTTON)
 
-        self.settings_page.wait_until_loaded([locators.MODAL])
         assert self.settings_page\
-            .find(locators.MODAL)\
+            .wait_until_visible(locators.MODAL)\
             .is_displayed()
 
-        start_date_input = self.settings_page.find(locators.START_DATE_INPUT)
-        end_date_input = self.settings_page.find(locators.END_DATE_INPUT)
+        self.settings_page.wait_until_visible(locators.TODAY_BUTTON).click()
+
+        start_date_input = self.settings_page.wait_until_visible(
+            locators.START_DATE_INPUT)
+        end_date_input = self.settings_page.wait_until_visible(
+            locators.END_DATE_INPUT)
+
+        assert start_date_input.is_displayed()
+        assert end_date_input.is_displayed()
 
         today = datetime.datetime.now().date()
         yesterday = datetime.datetime.now() - datetime.timedelta(days=1)

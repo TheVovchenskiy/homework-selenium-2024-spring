@@ -1,11 +1,10 @@
 import time
 from typing import Optional
-from _pytest.fixtures import FixtureRequest
 from selenium.common.exceptions import TimeoutException
 
 from base import LoginCase
 from ui.locators.base_locators import Locator
-from ui.locators.settings_locators import SettingsPageLocators
+from ui.locators.settings_locators import SettingsPageLocators as locators
 from ui.pages.settings_page import SettingsPage
 from ui.pages import settings_page
 
@@ -14,28 +13,33 @@ from ui.fixtures import *
 
 class SettingsCase(LoginCase):
     def settings_setup(self):
-        # self.main_page.go_to_settings()
         self.settings_page = SettingsPage(self.driver)
         self.settings_page.wait_until_loaded([
-            SettingsPageLocators.PHONE_INPUT,
-            SettingsPageLocators.EMAIL_INPUT,
-            SettingsPageLocators.NAME_INPUT,
-            SettingsPageLocators.INN_INPUT,
-            SettingsPageLocators.CABINET_INPUT,
+            locators.PHONE_INPUT,
+            locators.EMAIL_INPUT,
+            locators.NAME_INPUT,
+            locators.INN_INPUT,
+            locators.CABINET_INPUT,
         ])
 
         self.change_section()
-    
+
     def change_section(self):
         pass
 
     def error_match(self, locator: Locator, expected_error: Optional[str]) -> bool:
-        time.sleep(0.5)
         if expected_error is None:
-            return True
+            try:
+                existing_error = self.settings_page.get_error(locator, 0.5)
+            except TimeoutException:
+                return True
+            else:
+                return False
 
-        existing_error = self.settings_page.get_error(locator)
+        existing_error = self.settings_page.get_error(locator, 1)
 
+        print(existing_error.text)
+        print(expected_error)
         if expected_error in existing_error.text:
             return True
 
@@ -46,15 +50,12 @@ class TestSettings(SettingsCase):
 
     @pytest.fixture
     def pre_post_check(self):
-        assert not self.settings_page.save_cancel_is_visible()
+        assert self.settings_page.save_cancel_is_invisible()
 
         yield
 
-        assert not self.settings_page.save_cancel_is_visible()
+        assert self.settings_page.save_cancel_is_invisible()
 
-        time.sleep(1)
-
-    @pytest.mark.skip('skip')
     @pytest.mark.parametrize(
         'expected_values',
         [pytest.param([
@@ -68,14 +69,14 @@ class TestSettings(SettingsCase):
         ])]
     )
     def test_layout(self, expected_values):
-        assert all(
-            map(lambda item: item in self.driver.page_source, expected_values)
-        )
+        assert all(map(
+            lambda item: item in self.driver.page_source,
+            expected_values,
+        ))
 
-    @pytest.mark.skip('skip')
     def test_phone_input(self, pre_post_check):
         prev_phone_number = self.settings_page.get_input_value(
-            locator=SettingsPageLocators.PHONE_INPUT,
+            locator=locators.PHONE_INPUT,
         )
 
         for new_value, expected_value_after_save, expected_error in [
@@ -88,36 +89,35 @@ class TestSettings(SettingsCase):
             ('abc', 'abc', settings_page.ERR_INVALID_PHONE_NUMBER),
             ('a'*15, 'a'*14, settings_page.ERR_INVALID_PHONE_NUMBER),
         ]:
-            prev_value, curr_value = self.settings_page.update_phone_number(
+            prev_value, curr_value = self.settings_page.update_input_field(
                 new_value,
+                locator=locators.PHONE_INPUT,
             )
             assert curr_value == new_value[:14]
 
             if prev_value == curr_value:
-                assert not self.settings_page.save_cancel_is_visible()
+                assert self.settings_page.save_cancel_is_invisible()
             else:
                 assert self.settings_page.save_cancel_is_visible()
+                self.settings_page.press_save(expected_error is None, 1)
 
-            try:
-                self.settings_page.press_save(expected_error is not None)
-            except TimeoutError:
-                pass
-            else:
                 curr_value = self.settings_page.get_input_value(
-                    locator=SettingsPageLocators.PHONE_INPUT,
+                    locator=locators.PHONE_INPUT,
                 )
                 assert curr_value == expected_value_after_save
 
             assert self.error_match(
-                SettingsPageLocators.PHONE_BLOCK,
+                locators.PHONE_BLOCK,
                 expected_error,
             )
 
-        self.settings_page.update_phone_number(prev_phone_number)
+        self.settings_page.update_input_field(
+            prev_phone_number,
+            locator=locators.PHONE_INPUT,
+        )
 
         self.settings_page.press_save()
 
-    @pytest.mark.skip('skip')
     def test_email_input(self, pre_post_check):
         self.settings_page.press_add_email()
 
@@ -126,7 +126,7 @@ class TestSettings(SettingsCase):
         self.settings_page.press_save()
 
         assert self.error_match(
-            SettingsPageLocators.ADDITIONAL_EMAIL_BLOCK,
+            locators.ADDITIONAL_EMAIL_BLOCK(0),
             settings_page.ERR_REQUIRED_FIELD,
         )
 
@@ -173,7 +173,7 @@ class TestSettings(SettingsCase):
             assert self.settings_page.save_cancel_is_visible()
 
             assert self.error_match(
-                SettingsPageLocators.ADDITIONAL_EMAIL_BLOCK,
+                locators.ADDITIONAL_EMAIL_BLOCK(0),
                 expected_error,
             )
 
@@ -182,60 +182,64 @@ class TestSettings(SettingsCase):
         self.settings_page.has_warning('Подтвердите почту')
 
         self.settings_page.remove_additional_email()
-        self.settings_page.press_save()
 
-    @pytest.mark.skip('skip')
+        try:
+            self.settings_page.press_save(timeout=0.1)
+        except TimeoutException:
+            pass
+
     def test_name_input(self, pre_post_check):
         prev_name = self.settings_page.get_input_value(
-            locator=SettingsPageLocators.NAME_INPUT,
+            locator=locators.NAME_INPUT,
         )
 
-        for new_value, expected_value_after_save, expected_error in [
-            ('Иван', 'Иван', None),
-            ('Иван Иванович', 'Иван Иванович', None),
-            ('Иван Иванович-Иванов', 'Иван Иванович-Иванов', None),
-            ('Иван Иванович-Иванов', 'Иван Иванович-Иванов', None),
-            ('Иван    Иванович     Иванов', 'Иван Иванович Иванов', None),
-            ('  Иван Иванович Иванов  ', '  Иван Иванович Иванов  ', None),
-            ('и' * 256, 'и' * 255, None),
-            ('', '', settings_page.ERR_REQUIRED_FIELD),
-            ('    ', '    ', settings_page.ERR_ONLY_SPACES),
-            ('Ivan', 'Ivan', settings_page.ERR_INVALID_NAME_SYMBOLS),
+        for new_value, expected_value_after_save, expect_save, expected_error in [
+            ('Иван', 'Иван', True, None),
+            ('Иван Иванович', 'Иван Иванович', True, None),
+            ('Иван Иванович-Иванов', 'Иван Иванович-Иванов', True, None),
+            ('Иван    Иванович     Иванов', 'Иван Иванович Иванов', True, None),
+            ('  Иван Иванович Иванов  ', '  Иван Иванович Иванов  ', False,  None),
+            ('и' * 256, 'и' * 255, True, None),
+            ('', '', False, settings_page.ERR_REQUIRED_FIELD),
+            ('    ', '    ', False, settings_page.ERR_ONLY_SPACES),
+            ('Ivan', 'Ivan', False, settings_page.ERR_INVALID_NAME_SYMBOLS),
         ]:
-            prev_value, curr_value = self.settings_page.update_name(
+            prev_value, curr_value = self.settings_page.update_input_field(
                 new_value,
+                locator=locators.NAME_INPUT,
             )
 
             assert curr_value == new_value[:255]
 
             if prev_value == curr_value:
-                assert not self.settings_page.save_cancel_is_visible()
+                assert self.settings_page.save_cancel_is_invisible()
             else:
                 assert self.settings_page.save_cancel_is_visible()
+                self.settings_page.press_save(expect_save)
 
-            try:
-                self.settings_page.press_save(expected_error is not None)
-            except TimeoutError:
-                pass
-            else:
-                curr_value = self.settings_page.get_input_value(
-                    locator=SettingsPageLocators.NAME_INPUT,
+                curr_value_after_save = self.settings_page.get_input_value(
+                    locator=locators.NAME_INPUT,
                 )
-                assert curr_value == expected_value_after_save
+                assert curr_value_after_save == expected_value_after_save
 
             assert self.error_match(
-                SettingsPageLocators.NAME_BLOCK,
+                locators.NAME_BLOCK,
                 expected_error,
             )
 
-        self.settings_page.update_name(prev_name)
+        self.settings_page.update_input_field(
+            prev_name,
+            locator=locators.NAME_INPUT,
+        )
 
-        self.settings_page.press_save()
+        try:
+            self.settings_page.press_save(timeout=0.1)
+        except TimeoutException:
+            pass
 
-    @pytest.mark.skip('skip')
     def test_inn(self, pre_post_check):
         prev_inn = self.settings_page.get_input_value(
-            locator=SettingsPageLocators.INN_INPUT,
+            locator=locators.INN_INPUT,
         )
 
         for new_value, expected_error in [
@@ -253,28 +257,27 @@ class TestSettings(SettingsCase):
             assert curr_value == new_value[:12]
 
             if prev_value == curr_value:
-                assert not self.settings_page.save_cancel_is_visible()
+                assert self.settings_page.save_cancel_is_invisible()
             else:
                 assert self.settings_page.save_cancel_is_visible()
 
-            try:
-                self.settings_page.press_save(expected_error is not None)
-            except TimeoutError:
-                pass
+                self.settings_page.press_save(expected_error is None, 1)
 
             assert self.error_match(
-                SettingsPageLocators.INN_BLOCK,
+                locators.INN_BLOCK,
                 expected_error,
             )
 
         self.settings_page.update_inn(prev_inn)
 
-        self.settings_page.press_save()
+        try:
+            self.settings_page.press_save(timeout=0.1)
+        except TimeoutException:
+            pass
 
-    @pytest.mark.skip('skip')
     def test_cabinet_input(self, pre_post_check):
         prev_cabinet = self.settings_page.get_input_value(
-            locator=SettingsPageLocators.CABINET_INPUT,
+            locator=locators.CABINET_INPUT,
         )
 
         for new_value, expected_error in [
@@ -290,73 +293,68 @@ class TestSettings(SettingsCase):
             assert curr_value == new_value[:255]
 
             if prev_value == curr_value:
-                assert not self.settings_page.save_cancel_is_visible()
+                assert self.settings_page.save_cancel_is_invisible()
             else:
                 assert self.settings_page.save_cancel_is_visible()
 
-            try:
-                self.settings_page.press_save(expected_error is not None)
-            except TimeoutError:
-                pass
+                self.settings_page.press_save(expected_error is None, 1)
 
             assert self.error_match(
-                SettingsPageLocators.CABINET_BLOCK,
+                locators.CABINET_BLOCK,
                 expected_error,
             )
 
         self.settings_page.update_cabinet(prev_cabinet)
 
-        self.settings_page.press_save()
+        try:
+            self.settings_page.press_save(timeout=0.1)
+        except TimeoutException:
+            pass
 
-    @pytest.mark.skip('skip')
-    def test_language(self, pre_post_check):
-        self.settings_page.change_language()
+    def test_language(self):
         self.settings_page.change_language()
 
-    @pytest.mark.skip('skip')
     def test_connected_cabinet(self, pre_post_check):
         self.settings_page.scroll_to_connected_cabinet()
 
-        self.settings_page.click(locator=SettingsPageLocators.CONNECT_CABINET)
+        self.settings_page.click(locator=locators.CONNECT_CABINET)
 
         assert self.settings_page\
-            .find(SettingsPageLocators.CONNECT_CABINET_MODAL)\
+            .wait_until_visible(locators.CONNECT_CABINET_MODAL)\
             .is_displayed()
 
-    @pytest.mark.skip('skip')
     def test_api_access(self, pre_post_check):
-        self.settings_page.scroll_to(SettingsPageLocators.API_ACCESS_BUTTON)
+        self.settings_page.scroll_to(locators.API_ACCESS_BUTTON)
 
         self.settings_page.click(
-            locator=SettingsPageLocators.API_ACCESS_BUTTON)
+            locator=locators.API_ACCESS_BUTTON)
 
-        time.sleep(0.5)
         assert self.settings_page\
-            .find(SettingsPageLocators.API_ACCESS_MODAL)\
+            .wait_until_visible(locators.API_ACCESS_MODAL)\
             .is_displayed()
 
         name_input = self.settings_page\
             .find(
-                SettingsPageLocators.API_ACCESS_NAME_INPUT,
-                locator_to_find_in=SettingsPageLocators.API_ACCESS_MODAL,
+                locators.API_ACCESS_NAME_INPUT,
+                locator_to_find_in=locators.API_ACCESS_MODAL,
             )
         phone_input = self.settings_page\
             .find(
-                SettingsPageLocators.API_ACCESS_PHONE_INPUT,
-                locator_to_find_in=SettingsPageLocators.API_ACCESS_MODAL,
+                locators.API_ACCESS_PHONE_INPUT,
+                locator_to_find_in=locators.API_ACCESS_MODAL,
             )
         email_input = self.settings_page\
             .find(
-                SettingsPageLocators.API_ACCESS_EMAIL_INPUT,
-                locator_to_find_in=SettingsPageLocators.API_ACCESS_MODAL,
+                locators.API_ACCESS_EMAIL_INPUT,
+                locator_to_find_in=locators.API_ACCESS_MODAL,
             )
 
         save_button = self.settings_page\
-            .find(SettingsPageLocators.API_ACCESS_SAVE_BUTTON)
+            .find(locators.API_ACCESS_SAVE_BUTTON)
         cancel_button = self.settings_page\
             .find(
-                SettingsPageLocators.API_ACCESS_CANCEL_BUTTON,
-                locator_to_find_in=SettingsPageLocators.API_ACCESS_MODAL,
+                locators.API_ACCESS_CANCEL_BUTTON,
+                locator_to_find_in=locators.API_ACCESS_MODAL,
             )
 
         self.settings_page.update_input_field('', input=name_input)
@@ -375,7 +373,6 @@ class TestSettings(SettingsCase):
             ('Иван',  None),
             ('Иван Иванович',  None),
             ('Иван Иванович-Иванов',  None),
-            ('Иван Иванович-Иванов',  None),
             ('Иван    Иванович     Иванов',  None),
             ('  Иван Иванович Иванов  ',  None),
             ('    ', settings_page.ERR_API_INVALID_NAME),
@@ -386,7 +383,7 @@ class TestSettings(SettingsCase):
             self.settings_page.click(elem=save_button)
 
             assert self.error_match(
-                SettingsPageLocators.API_ACCESS_NAME_BLOCK,
+                locators.API_ACCESS_NAME_BLOCK,
                 expected_error,
             )
 
@@ -407,7 +404,7 @@ class TestSettings(SettingsCase):
             self.settings_page.click(elem=save_button)
 
             assert self.error_match(
-                SettingsPageLocators.API_ACCESS_PHONE_BLOCK,
+                locators.API_ACCESS_PHONE_BLOCK,
                 expected_error,
             )
 
@@ -415,6 +412,8 @@ class TestSettings(SettingsCase):
             ('email@example.co', None),
             ('email@e.x.a.m.p.l.e.com', None),
             ('email@example.com',  None),
+            (' mail@e.com',  None),
+            ('mail@e.com ',  None),
             ('email@e.c', settings_page.ERR_API_INCORRECT_EMAIL),
             ('email@example', settings_page.ERR_API_INCORRECT_EMAIL),
             ('e@@e.com',  settings_page.ERR_API_INCORRECT_EMAIL),
@@ -444,8 +443,6 @@ class TestSettings(SettingsCase):
             ('mail@e]e.com',  settings_page.ERR_API_INCORRECT_EMAIL),
             ('mail@e@e.com',  settings_page.ERR_API_INCORRECT_EMAIL),
             ('mail@e e.com',  settings_page.ERR_API_INCORRECT_EMAIL),
-            (' mail@e.com',  None),
-            ('mail@e.com ',  None),
             ('    ',  settings_page.ERR_API_INVALID_EMAIL),
         ]:
             self.settings_page.update_input_field(email, input=email_input)
@@ -454,33 +451,30 @@ class TestSettings(SettingsCase):
             self.settings_page.click(elem=save_button)
 
             assert self.error_match(
-                SettingsPageLocators.API_ACCESS_EMAIL_BLOCK,
+                locators.API_ACCESS_EMAIL_BLOCK,
                 expected_error,
             )
 
         self.settings_page.click(elem=cancel_button)
 
-    @pytest.mark.skip('skip')
     def test_end_sessions(self, pre_post_check):
         self.settings_page.scroll_to(
-            SettingsPageLocators.LOGOUT_ALL_DEVICES_BUTTON)
+            locators.LOGOUT_ALL_DEVICES_BUTTON)
 
         self.settings_page\
-            .click(locator=SettingsPageLocators.LOGOUT_ALL_DEVICES_BUTTON)
+            .click(locator=locators.LOGOUT_ALL_DEVICES_BUTTON)
 
         assert self.settings_page\
-            .wait_until_visible(SettingsPageLocators.LOGOUT_ALL_DEVICES_MESSAGE)\
+            .wait_until_visible(locators.LOGOUT_ALL_DEVICES_MESSAGE)\
             .is_displayed()
 
-    @pytest.mark.skip('skip')
     def test_delete_cabinet(self, pre_post_check):
         self.settings_page.scroll_to(
-            SettingsPageLocators.DELETE_CABINET_BUTTON)
+            locators.DELETE_CABINET_BUTTON)
 
         self.settings_page\
-            .click(locator=SettingsPageLocators.DELETE_CABINET_BUTTON)
+            .click(locator=locators.DELETE_CABINET_BUTTON)
 
         assert self.settings_page\
-            .wait_until_visible(SettingsPageLocators.DELETE_CABINET_MODAL)\
+            .wait_until_visible(locators.DELETE_CABINET_MODAL)\
             .is_displayed()
-

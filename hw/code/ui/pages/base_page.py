@@ -8,13 +8,18 @@ from ui.locators.base_locators import Locator
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import TimeoutException
 
 
 from ui.fixtures import *
 
 
-TIMEOUT_UNTIL_LOADED = 5
+TIMEOUT_UNTIL_LOADED = 15
 DEFAULT_TIMEOUT = 5
+
+MAX_RETRIES_COUNT = 3
+
+VALUE_ATTRIBUTE_NAME = 'value'
 
 
 def validate_only_one_is_not_none(*args: Any):
@@ -22,15 +27,11 @@ def validate_only_one_is_not_none(*args: Any):
         raise TypeError('one of two positional arguments must be None')
 
 
-class PageNotOpenedExeption(Exception):
-    pass
-
-
 class BasePage:
 
     url = 'https://ads.vk.com/'
 
-    def is_opened(self, url: Optional[str] = None, timeout: int | float = 15):
+    def is_opened(self, url: Optional[str] = None, timeout: int | float = TIMEOUT_UNTIL_LOADED):
         if url is None:
             url = self.url
 
@@ -38,7 +39,7 @@ class BasePage:
         while time.time() - started < timeout:
             if self.driver.current_url == url:
                 return True
-        raise PageNotOpenedExeption(
+        raise TimeoutException(
             f'{url} did not open in {timeout} sec, '
             'current url {self.driver.current_url}'
         )
@@ -48,7 +49,6 @@ class BasePage:
             self.wait(TIMEOUT_UNTIL_LOADED).until(
                 EC.presence_of_all_elements_located(locator)
             )
-
     def wait_until_visible(
         self,
         locator: Locator,
@@ -147,7 +147,6 @@ class BasePage:
         else:
             input.send_keys(Keys.BACKSPACE * len(prev_data))
 
-        time.sleep(0.5)
         return prev_data, self.get_input_value(input=input)
 
     def get_input_value(self, *, locator: Locator = None, input: WebElement = None) -> str:
@@ -155,11 +154,12 @@ class BasePage:
         Returns value of input field by given locator or by WebElement input.
         One of two params must be None.
         """
-        time.sleep(0.5)
         validate_only_one_is_not_none(locator, input)
         if locator:
             input = self.find(locator, timeout=DEFAULT_TIMEOUT)
-        return input.get_attribute('value')
+
+        return self.wait().until(EC.visibility_of(input)).get_attribute(VALUE_ATTRIBUTE_NAME)
+        # return input.get_attribute(VALUE_ATTRIBUTE_NAME)
 
     def scroll_to(self, locator: Locator):
         target_elem = self.find(locator)

@@ -24,3 +24,7 @@ auth: ## Auth to your VK ID and save cookies for tests locally.
 .PHONY: test
 test: ## Run tests.
 	pytest ./hw/code
+
+.PHONY: test-failed
+test-failed: ## Run last failed tests
+	pytest ./hw/code --lf

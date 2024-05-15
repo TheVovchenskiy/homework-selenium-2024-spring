@@ -1,8 +1,8 @@
-import time
-from ui.pages.base_page import DEFAULT_TIMEOUT
+from ui.pages.base_page import DEFAULT_TIMEOUT, MAX_RETRIES_COUNT
 from ui.locators.base_locators import Locator
 from ui.locators.settings_locators import SettingsPageLocators
 from ui.pages.main_page import MainPage
+from retry import retry
 
 
 from selenium.webdriver.remote.webelement import WebElement
@@ -40,23 +40,32 @@ DEFAULT_CABINET = 'кабинет'
 class SettingsPage(MainPage):
     url = 'https://ads.vk.com/hq/settings'
 
-    def save_cancel_is_visible(self) -> bool:
-        time.sleep(0.5)
-        save_button = self.find(SettingsPageLocators.SAVE_BUTTON)
-        cancel_button = self.find(
-            SettingsPageLocators.CANCEL_BUTTON)
-        return save_button.is_displayed() and cancel_button.is_displayed()
+    def save_cancel_is_visible(self, timeout: float = DEFAULT_TIMEOUT) -> bool:
+        return self.wait(timeout).until(EC.visibility_of_element_located(
+            SettingsPageLocators.SAVE_BUTTON,
+        )).is_displayed() and self.wait(timeout).until(EC.visibility_of_element_located(
+            SettingsPageLocators.CANCEL_BUTTON,
+        )).is_displayed()
+
+    def save_cancel_is_invisible(self) -> bool:
+        return not self.wait().until(EC.invisibility_of_element_located(
+            SettingsPageLocators.SAVE_BUTTON,
+        )).is_displayed() and not self.wait().until(EC.invisibility_of_element_located(
+            SettingsPageLocators.CANCEL_BUTTON,
+        )).is_displayed()
 
     def press_button(self, locator: Locator):
-        time.sleep(0.5)
-        self.click(locator=locator, timeout=5)
-        time.sleep(0.5)
+        self.click(
+            elem=self.wait().until(EC.visibility_of_element_located(locator)),
+        )
 
-    def press_save(self, expect_save=False):
-        if self.save_cancel_is_visible():
-            self.press_button(SettingsPageLocators.SAVE_BUTTON)
+    @retry(tries=MAX_RETRIES_COUNT)
+    def press_save(self, expect_save=False, timeout=DEFAULT_TIMEOUT):
+        if self.save_cancel_is_visible(timeout):
+            self.click(locator=SettingsPageLocators.SAVE_BUTTON,
+                       timeout=timeout)
             if expect_save:
-                if self.wait_until_true(lambda: not self.save_cancel_is_visible()):
+                if not self.wait(timeout).until(EC.invisibility_of_element(SettingsPageLocators.SAVE_BUTTON)).is_displayed():
                     return
 
     def press_cancel(self):
@@ -66,10 +75,11 @@ class SettingsPage(MainPage):
     def press_add_email(self):
         self.press_button(SettingsPageLocators.ADD_EMAIL_BUTTON)
 
-    def get_error(self, locator: Locator = None) -> WebElement:
+    def get_error(self, locator: Locator = None, timeout: float = DEFAULT_TIMEOUT) -> WebElement:
         return self.find(
             SettingsPageLocators.ERROR_MESSAGE,
             locator_to_find_in=locator,
+            timeout=timeout,
         )
 
     def get_phone_error(self, locator: Locator) -> WebElement:
@@ -106,7 +116,8 @@ class SettingsPage(MainPage):
         )
 
     def has_warning(self, message: str) -> bool:
-        elem = self.find(SettingsPageLocators.WARNING, timeout=5)
+        elem = self.wait().until(EC.visibility_of(
+            self.find(SettingsPageLocators.WARNING, timeout=5)))
 
         return message in elem.text
 
@@ -117,15 +128,14 @@ class SettingsPage(MainPage):
         elem = self.find(SettingsPageLocators.LANGUAGE_BUTTON)
 
         id = elem.get_attribute('aria-owns')
-        print(id)
-        self.wait().until(EC.element_to_be_clickable(elem)).click()
-        self.wait().until(EC.visibility_of_element_located(
+        self.click(elem=elem)
+        if self.wait().until(EC.visibility_of_element_located(
             SettingsPageLocators.LANGUAGE_DROPDOWN(id)
-        ))
-        return id
+        )).is_displayed():
+            return id
 
     def get_curr_language(self) -> str:
-        elem = self.find(SettingsPageLocators.LANGUAGE_CURR_LANG)
+        elem = self.wait().until(EC.visibility_of_element_located(SettingsPageLocators.LANGUAGE_CURR_LANG))
 
         return elem.text
 
@@ -141,35 +151,35 @@ class SettingsPage(MainPage):
         curr_language = self.get_curr_language()
 
         id = self.open_language_dropdown()
+        print(curr_language)
 
         if curr_language == 'RU':
-            ru_elem = self.wait().until(EC.visibility_of_element_located(
+            ru_elem_ru = self.wait().until(EC.visibility_of_element_located(
                 SettingsPageLocators.LANGUAGE_RU(id)
             ))
-            self.assert_chosen_language(ru_elem)
+            self.assert_chosen_language(ru_elem_ru)
 
             self.click(locator=SettingsPageLocators.LANGUAGE_EN(id))
-            time.sleep(1)
 
             id = self.open_language_dropdown()
 
-            en_elem = self.wait().until(EC.visibility_of_element_located(
+            ru_elem_en = self.wait().until(EC.visibility_of_element_located(
                 SettingsPageLocators.LANGUAGE_EN(id)
             ))
-            self.assert_chosen_language(en_elem)
+            self.assert_chosen_language(ru_elem_en)
         elif curr_language == 'EN':
-            en_elem = self.wait().until(EC.visibility_of_element_located(
+            en_elem_en = self.wait().until(EC.visibility_of_element_located(
                 SettingsPageLocators.LANGUAGE_EN(id)
             ))
-            self.assert_chosen_language(en_elem)
+            self.assert_chosen_language(en_elem_en)
 
             self.click(locator=SettingsPageLocators.LANGUAGE_RU(id))
 
             id = self.open_language_dropdown()
 
-            ru_elem = self.wait().until(EC.visibility_of_element_located(
+            en_elem_ru = self.wait().until(EC.visibility_of_element_located(
                 SettingsPageLocators.LANGUAGE_RU(id)
             ))
-            self.assert_chosen_language(ru_elem)
+            self.assert_chosen_language(en_elem_ru)
 
         self.click(locator=SettingsPageLocators.LANGUAGE_BUTTON)
