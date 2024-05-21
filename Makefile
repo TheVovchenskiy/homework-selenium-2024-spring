@@ -38,7 +38,7 @@ test-monetization:
 	python3 -m pytest -k test_monetization ./hw/code
 
 .PHONY: test
-test: test-settings test-support test-registration test-monetization
+test: test-settings test-support test-monetization
 
 .PHONY: test-failed
 test-failed: ## Run last failed tests

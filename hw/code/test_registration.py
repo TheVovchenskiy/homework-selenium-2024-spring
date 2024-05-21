@@ -10,6 +10,8 @@ INCORRECT_EMAIL = "Некорректный email адрес"
 class TestSupportCase(BaseCase):
 
     def registration_setup(self):
+        self.main_page.is_opened(url='https://ads.vk.com/hq/registration', timeout=60)
+        self.driver.get('https://ads.vk.com/hq/registration/new')
         self.registration_page = registration_page.RegistrationPage(self.driver)
 
     @pytest.fixture
