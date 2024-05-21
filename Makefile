@@ -19,11 +19,11 @@ help: ## Display this help.
 
 .PHONY: auth
 auth: ## Auth to your VK ID and save cookies for tests locally.
-	pytest ./hw/code --auth
+	python3 -m pytest ./hw/code --auth
 
 .PHONY: test
 test: ## Run tests.
-	pytest ./hw/code
+	python3 -m pytest ./hw/code
 
 .PHONY: test-failed
 test-failed: ## Run last failed tests
