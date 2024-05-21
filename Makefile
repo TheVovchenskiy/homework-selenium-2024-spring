@@ -19,11 +19,26 @@ help: ## Display this help.
 
 .PHONY: auth
 auth: ## Auth to your VK ID and save cookies for tests locally.
-	python3 -m pytest ./hw/code --auth
+	python3 -m pytest -k test_settings ./hw/code --auth
+
+.PHONY: test-settings
+test-settings:
+	python3 -m pytest -k test_settings ./hw/code
+
+.PHONY: test-support
+test-support:
+	python3 -m pytest -k test_support ./hw/code
+
+.PHONY: test-registration
+test-registration:
+	python3 -m pytest -k test_registration ./hw/code
+
+.PHONY: test-monetization
+test-monetization:
+	python3 -m pytest -k test_monetization ./hw/code
 
 .PHONY: test
-test: ## Run tests.
-	python3 -m pytest ./hw/code
+test: test-settings test-support test-registration test-monetization
 
 .PHONY: test-failed
 test-failed: ## Run last failed tests

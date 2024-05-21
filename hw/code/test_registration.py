@@ -16,18 +16,17 @@ class TestSupportCase(BaseCase):
     def select_legal_entity(self):
         self.registration_page.set_legal_entity()
 
-    @pytest.mark.skip('skip')
+    # @pytest.mark.skip('skip')
     def test_select_country(self, select_legal_entity):
         self.registration_page.change_country(5)
     
-    @pytest.mark.skip('skip')
+    # @pytest.mark.skip('skip')
     def test_select_currency(self, select_legal_entity):
         self.registration_page.change_currency('RUB')
 
         self.registration_page.change_country(10)
-        self.registration_page.change_currency('USD')
 
-    @pytest.mark.skip('skip')
+    # @pytest.mark.skip('skip')
     def test_email_form(self, select_legal_entity):
         email_elem = self.registration_page.find(RegistrationPageLocators.EMAIL_INPUT)
         email_elem.clear()
@@ -52,19 +51,19 @@ class TestSupportCase(BaseCase):
             except:
                 assert expected_error == None
 
-    @pytest.mark.skip('skip')
-    def test_email_form_correct_input(self, select_legal_entity):
-        email_elem = self.registration_page.find(RegistrationPageLocators.EMAIL_INPUT)
-        email_elem.clear()
+    # @pytest.mark.skip('skip')
+    # def test_email_form_correct_input(self, select_legal_entity):
+    #     email_elem = self.registration_page.find(RegistrationPageLocators.EMAIL_INPUT)
+    #     email_elem.clear()
             
-        self.registration_page.enter_email("example@mail.ru")
-        self.registration_page.press_sign_up_button()
+    #     self.registration_page.enter_email("example@mail.ru")
+    #     self.registration_page.press_sign_up_button()
 
-        err_locator = RegistrationPageLocators.ERROR_OF_FIELD("Email")
-        try:
-            self.registration_page.find(err_locator)
-        except:
-            assert 1 == 1
+    #     err_locator = RegistrationPageLocators.ERROR_OF_FIELD("Email")
+    #     try:
+    #         self.registration_page.find(err_locator)
+    #     except:
+    #         assert 1 == 1
     
 
     

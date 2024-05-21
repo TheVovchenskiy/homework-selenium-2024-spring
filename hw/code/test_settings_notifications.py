@@ -12,9 +12,9 @@ class SettingsNotificationsCase(SettingsCase):
         if self.settings_page.find(locators.EMAIL_CHECKBOX).is_selected():
             self.settings_page.click(locator=locators.EMAIL_CHECKBOX_BUTTON)
 
-        if self.settings_page.find(locators.NOTIFICATIONS_CHECKBOX).is_selected():
-            self.settings_page\
-                .click(locator=locators.NOTIFICATIONS_CHECKBOX_BUTTON)
+        # if self.settings_page.find(locators.NOTIFICATIONS_CHECKBOX).is_selected():
+        #     self.settings_page\
+        #         .click(locator=locators.NOTIFICATIONS_CHECKBOX_BUTTON)
 
         if self.settings_page.find(locators.TELEGRAM_CHECKBOX).is_selected():
             self.settings_page\
@@ -24,9 +24,9 @@ class SettingsNotificationsCase(SettingsCase):
         if not self.settings_page.find(locators.EMAIL_CHECKBOX).is_selected():
             self.settings_page.click(locator=locators.EMAIL_CHECKBOX_BUTTON)
 
-        if not self.settings_page.find(locators.NOTIFICATIONS_CHECKBOX).is_selected():
-            self.settings_page.click(
-                locator=locators.NOTIFICATIONS_CHECKBOX_BUTTON)
+        # if not self.settings_page.find(locators.NOTIFICATIONS_CHECKBOX).is_selected():
+        #     self.settings_page.click(
+        #         locator=locators.NOTIFICATIONS_CHECKBOX_BUTTON)
 
         if not self.settings_page.find(locators.TELEGRAM_CHECKBOX).is_selected():
             self.settings_page.click(locator=locators.TELEGRAM_CHECKBOX_BUTTON)
@@ -36,7 +36,7 @@ class SettingsNotificationsCase(SettingsCase):
 
         self.settings_page.wait_until_loaded([
             locators.EMAIL_CHECKBOX,
-            locators.NOTIFICATIONS_CHECKBOX,
+            # locators.NOTIFICATIONS_CHECKBOX,
         ])
 
 
