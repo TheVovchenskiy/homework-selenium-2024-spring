@@ -32,6 +32,15 @@ class BaseCase:
     def settings_setup(self):
         pass
 
+    def support_setup(self):
+        pass
+
+    def registration_setup(self):
+        pass
+
+    def monetization_setup(self):
+        pass
+
     @pytest.fixture(scope='function', autouse=True)
     def setup(self, driver, config, request: FixtureRequest):
         self.driver = driver
@@ -43,6 +52,9 @@ class BaseCase:
             self.main_page = MainPage(driver)
 
         self.settings_setup()
+        self.support_setup()
+        self.registration_setup()
+        self.monetization_setup()
 
 
 class LoginCase(BaseCase):
