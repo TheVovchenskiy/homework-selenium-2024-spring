@@ -38,8 +38,8 @@ class SettingsCase(LoginCase):
 
         existing_error = self.settings_page.get_error(locator, 1)
 
-        print(existing_error.text)
-        print(expected_error)
+        # print(existing_error.text)
+        # print(expected_error)
         if expected_error in existing_error.text:
             return True
 

@@ -30,7 +30,8 @@ class RegistrationPage(BasePage):
         id = self.open_country_dropdown()
 
         self.click(locator=RegistrationPageLocators.COUNTRY_ITEM(id, num))
-        time.sleep(1)
+
+        self.wait().until(EC.invisibility_of_element_located(RegistrationPageLocators.COUNTRY_DROPDOWN(id)))
 
         new_id = self.open_country_dropdown()
 
@@ -53,7 +54,7 @@ class RegistrationPage(BasePage):
         id = self.open_currency_dropdown()
 
         self.click(locator=RegistrationPageLocators.CURRENCY_ITEM(id, name))
-        time.sleep(1)
+        self.wait().until(EC.invisibility_of_element_located(RegistrationPageLocators.CURRENCY_DROPDOWN(id)))
 
         new_id = self.open_currency_dropdown()
 

@@ -2,6 +2,7 @@ import time
 
 from test_settings import SettingsCase
 from ui.locators.settings_access import SettingsAccessPageLocators as locators
+from selenium.webdriver.support import expected_conditions as EC
 
 from ui.fixtures import *
 
@@ -50,7 +51,8 @@ class TestSettingsAccess(SettingsAccessCase):
 
             self.settings_page.click(locator=locators.SAVE_BUTTON)
 
-            time.sleep(0.5)
+            self.settings_page.wait().until(EC.element_to_be_clickable(locators.SAVE_BUTTON))
+
             assert self.error_match(
                 locators.ACCOUNT_ID_BLOCK,
                 expected_error,

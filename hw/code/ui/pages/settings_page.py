@@ -67,6 +67,9 @@ class SettingsPage(MainPage):
             if expect_save:
                 if not self.wait(timeout).until(EC.invisibility_of_element(SettingsPageLocators.SAVE_BUTTON)).is_displayed():
                     return
+    
+    # def wait_until_save_is_clickable(self) -> bool:
+    #     return self.wait().until(EC.element_to_be_clickable(SettingsPageLocators.SAVE_BUTTON))
 
     def press_cancel(self):
         if self.save_cancel_is_visible():

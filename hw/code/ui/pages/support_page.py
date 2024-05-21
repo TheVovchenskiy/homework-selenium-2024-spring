@@ -55,7 +55,8 @@ class SupportPage(BasePage):
         id = self.open_topic_dropdown()
 
         self.click(locator=SupportPageLocators.TOPIC_ITEM(id, topic))
-        time.sleep(1)
+
+        self.wait().until(EC.invisibility_of_element_located(SupportPageLocators.TOPIC_DROPDOWN(id)))
 
         new_id = self.open_topic_dropdown()
 

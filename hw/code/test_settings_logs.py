@@ -102,10 +102,11 @@ class TestSettingsLogs(SettingsLogsCase):
 
         search_input.send_keys('кампания')
 
+        self.settings_page.wait_until_true(lambda: len(self.settings_page.find_all(locators.CHECKBOX)) == 1)
+
         assert len(self.settings_page.find_all(locators.CHECKBOX)) == 1
 
     def test_calendar(self):
-        time.sleep(0.5)
         self.settings_page.click(locator=locators.CALENDAR_BUTTON)
 
         assert self.settings_page\
