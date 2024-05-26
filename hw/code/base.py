@@ -41,6 +41,9 @@ class BaseCase:
     def monetization_setup(self):
         pass
 
+    def lead_form_setup(self):
+        pass
+
     @pytest.fixture(scope='function', autouse=True)
     def setup(self, driver, config, request: FixtureRequest):
         self.driver = driver
@@ -55,6 +58,7 @@ class BaseCase:
         self.support_setup()
         self.registration_setup()
         self.monetization_setup()
+        self.lead_form_setup()
 
 
 class LoginCase(BaseCase):

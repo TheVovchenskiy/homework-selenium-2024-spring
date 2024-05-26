@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from ui.locators.base_locators import Locator, locator_xpath_parent
 
 
-class LidFormLocators:
+class LeadFormLocators:
     CREATE_BUTTON = (By.XPATH, '//*[@test-id="create-leadform-button"]')
 
     LEAD_FORM_LIST_ITEM = (By.XPATH, '//div[@data-entityid]')
@@ -14,7 +14,7 @@ class LidFormLocators:
     def LEAD_FORM_ITEM_DELETE_BUTTON(name: str) -> Locator:
         return (By.XPATH, f'//button[text()="{name}"]/../div/div/button[span/text()="Удалить"]')
     
-    def LEAD_FORM_ITEM_Edit_BUTTON(name: str) -> Locator:
+    def LEAD_FORM_ITEM_EDIT_BUTTON(name: str) -> Locator:
         return (By.XPATH, f'//button[text()="{name}"]/../div/div/button[span/text()="Редактировать"]')
     
     DELETE_LEAD_FORM_BUTTON = (By.XPATH, '//button[span/span/text()="Удалить"]')
@@ -23,40 +23,67 @@ class LidFormLocators:
     MODAL = (By.CLASS_NAME, 'ModalRoot_componentWrapper__uzHTL')
 
     SUBMIT_BUTTON = (By.XPATH, '//*[@data-testid="submit"]')
-    SUBMIT_BUTTON = (By.XPATH, '//*[@data-testid="cancel"]')
+    CANCEL_BUTTON = (By.XPATH, '//*[@data-testid="cancel"]')
+
+    ERROR_MESSAGE = (By.XPATH, './/span[@role="alert"]')
+
+    def PREVIEW_TAG(tag: str, text: str) -> Locator:
+        return (By.XPATH, f'//{tag}[text()="{text}"]')
 
     # First step
     LID_FORM_NAME_INPUT = (By.XPATH, '//input[@placeholder="Название лид-формы"]')
+    LID_FORM_NAME_BLOCK = (By.XPATH, '//input[@placeholder="Название лид-формы"]/../..')
     
     ADD_LOGO_BUTTON = (By.XPATH, '//*[@data-testid="set-global-image"]')
+    ADD_LOGO_BLOCK = (By.XPATH, '//*[@data-testid="set-global-image"]/..')
+
+    MEDIA_HEADER = (By.XPATH, '//h2[text()="Медиатека"]')
     FILE_INPUT = (By.XPATH, '//input[@type="file"]')
+
+    FILE_ERROR_BANNER = (By.XPATH, '//div[contains(@class, "ErrorBanner_container")]')
+    FAILED_TO_LOAD_FILES_ERROR = (By.XPATH, '//div[text()="Не удалось загрузить файлы"]')
+    LOGO_ITEM = (By.XPATH, '//div[contains(@class, "ImageItems_imageItem")]')
+
     LOGO_PREVIEW = (By.CLASS_NAME, 'Preview_activeLogoWrap__Ti7Cw')
+    LOGO_RIGHT_PREVIEW = (By.XPATH, '//img[@alt="Название компании"]')
     CHANGE_LOGO_BUTTON = (By.XPATH, '//*[@data-testid="change-image"]')
     CROP_LOGO_BUTTON = (By.XPATH, '//*[@data-testid="crop-image"]')
 
     COMPANY_NAME_INPUT = (By.XPATH, '//input[@placeholder="Название компании"]')
+    COMPANY_NAME_BLOCK = (By.XPATH, '//input[@placeholder="Название компании"]/../..')
 
     # Compact
     COMPACT_LABEL = (By.XPATH, '//input[@value="compact"]/..')
     HEADER_TEXT_INPUT = (By.XPATH, '//input[@placeholder="Текст заголовка"]')
+    HEADER_TEXT_BLOCK = (By.XPATH, '//input[@placeholder="Текст заголовка"]/../..')
     SHORT_DESCRIPTION_INPUT = (By.XPATH, '//input[@placeholder="Краткое описание опроса"]')
+    SHORT_DESCRIPTION_BLOCK = (By.XPATH, '//input[@placeholder="Краткое описание опроса"]/../..')
 
     # Long text
     LONG_TEXT_LABEL = (By.XPATH, '//input[@value="long_text"]/..')
     LONG_DESCRIPTION_INPUT = (By.XPATH, '//textarea[@placeholder="Расскажите о вашем опросе или предложении"]')
+    LONG_DESCRIPTION_BLOCK = (By.XPATH, '//textarea[@placeholder="Расскажите о вашем опросе или предложении"]/../..')
 
     # Award
     AWARD_LABEL = (By.XPATH, '//input[@value="award"]/..')
 
-    DISCOUNT_INPUT = (By.XPATH, '//input[@value="discount"]')
-    DISCOUNT_VALUE_INPUT = (By.XPATH, '//input[@value="500"]')  # 500 is default
+    DISCOUNT_RADIOBUTTON = (By.XPATH, '//input[@value="discount"]')
+    DISCOUNT_BUTTON = (By.XPATH, '//input[@value="discount"]/..')
+
+    DISCOUNT_VALUE_BLOCK = (By.XPATH, '//h5[text()="Размер скидки"]/..')
+    DISCOUNT_VALUE_INPUT = (By.XPATH, '//h5[text()="Размер скидки"]/../div/span/input')
+
     MONEY_DISCOUNT_BUTTON = (By.XPATH, '//input[@value="money"]/..')
+    MONEY_DISCOUNT_INPUT = (By.XPATH, '//input[@value="money"]')
     PERCENT_DISCOUNT_BUTTON = (By.XPATH, '//input[@value="percent"]/..')
+    PERCENT_DISCOUNT_INPUT = (By.XPATH, '//input[@value="percent"]')
 
-    BONUS_INPUT = (By.XPATH, '//input[@value="bonus"]')
-    BONUS_VALUE_INPUT = (By.XPATH, '//input[@placeholder="Бонус"]')  # 500 is default
+    BONUS_RADIOBUTTON = (By.XPATH, '//input[@value="bonus"]')
+    BONUS_BUTTON = (By.XPATH, '//input[@value="bonus"]/..')
+    BONUS_VALUE_INPUT = (By.XPATH, '//input[@placeholder="Бонус"]')
+    BONUS_VALUE_BLOCK = (By.XPATH, '//input[@placeholder="Бонус"]/../..')
 
-    ACTIVE_COLOR = (By.CLASS_NAME, 'GradientSelector_roundActive__JmsvQ')
+    ACTIVE_COLOR = (By.XPATH, '//div[contains(@class, "GradientSelector_roundActive")]')
     STYLE_RED = (By.XPATH, '//*[@data-id="0"]')
 
     SET_MAIN_IMAGE_BUTTON = (By.XPATH, '//*[@data-testid="set-main-image"]')

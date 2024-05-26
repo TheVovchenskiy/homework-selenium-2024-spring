@@ -1,186 +1,296 @@
+import os
+from typing import Any, Callable
 from ui.pages.base_page import DEFAULT_TIMEOUT, MAX_RETRIES_COUNT
 from ui.locators.base_locators import Locator
-from ui.locators.settings_locators import SettingsPageLocators
+from ui.locators.lead_form_locators import LeadFormLocators as locators
 from ui.pages.main_page import MainPage
 from retry import retry
 
 
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
 
 
 ERR_REQUIRED_FIELD = 'Обязательное поле'
-ERR_ONLY_SPACES = 'Значение не может содержать только пробелы'
-
-ERR_INVALID_PHONE_NUMBER = 'Некорректный номер телефона'
-ERR_INVALID_PHONE_LENGTH = 'Телефон не может быть короче 12 цифр'
-
-ERR_INVALID_EMAIL = 'Некорректный email адрес'
-
-ERR_INVALID_NAME_SYMBOLS = 'Некорректные символы. Разрешена только кириллица дефис и пробел'
-
-ERR_INVALID_INN_LENGTH = 'Длина ИНН должна быть 12 символов'
-ERR_INVALID_INN = 'Невалидный ИНН'
-ERR_INCORRECT_INN = 'Некорректный ИНН'
-
-ERR_API_INVALID_NAME = 'Некорректное имя'
-
-ERR_API_INVALID_PHONE = 'Некорректный телефон'
-ERR_API_INCORRECT_PHONE = 'Некорректный формат. Пример: +71234567890'
-
-ERR_API_INVALID_EMAIL = 'Некорректный email'
-ERR_API_INCORRECT_EMAIL = 'Некорректный формат. Пример: example@mail.ru'
-
-DEFAULT_PHONE = '+71234567890'
-DEFAULT_NAME = 'Иван'
-DEFAULT_INN = '123456789012'
-DEFAULT_CABINET = 'кабинет'
+ERR_MAX_FIELD_LEN = 'Превышена максимальная длина поля'
+ERR_MAX_NEW_LINE_COUNT = 'Разрешено не более 2 переносов строк подряд'
+ERR_VALUE_GT_ZERO = 'Значение должно быть больше нуля'
+ERR_MAX_DISCOUNT_PERCENT = 'Запрещено указывать скидку более 100%'
 
 
-class LidFormPage(MainPage):
+type TestCases = list[tuple[str, str | None, str | None]]
+
+
+class LeadFormPage(MainPage):
     url = 'https://ads.vk.com/hq/leadads/leadforms'
 
-    def save_cancel_is_visible(self, timeout: float = DEFAULT_TIMEOUT) -> bool:
-        return self.wait(timeout).until(EC.visibility_of_element_located(
-            SettingsPageLocators.SAVE_BUTTON,
-        )).is_displayed() and self.wait(timeout).until(EC.visibility_of_element_located(
-            SettingsPageLocators.CANCEL_BUTTON,
-        )).is_displayed()
-
-    def save_cancel_is_invisible(self) -> bool:
-        return not self.wait().until(EC.invisibility_of_element_located(
-            SettingsPageLocators.SAVE_BUTTON,
-        )).is_displayed() and not self.wait().until(EC.invisibility_of_element_located(
-            SettingsPageLocators.CANCEL_BUTTON,
-        )).is_displayed()
-
-    def press_button(self, locator: Locator):
-        self.click(
-            elem=self.wait().until(EC.visibility_of_element_located(locator)),
-        )
-
-    @retry(tries=MAX_RETRIES_COUNT)
-    def press_save(self, expect_save=False, timeout=DEFAULT_TIMEOUT):
-        if self.save_cancel_is_visible(timeout):
-            self.click(locator=SettingsPageLocators.SAVE_BUTTON,
-                       timeout=timeout)
-            if expect_save:
-                if not self.wait(timeout).until(EC.invisibility_of_element(SettingsPageLocators.SAVE_BUTTON)).is_displayed():
-                    return
-
-    def press_cancel(self):
-        if self.save_cancel_is_visible():
-            self.press_button(SettingsPageLocators.CANCEL_BUTTON)
-
-    def press_add_email(self):
-        self.press_button(SettingsPageLocators.ADD_EMAIL_BUTTON)
+    @retry(MAX_RETRIES_COUNT)
+    def open_create_lead_form(self):
+        if self.wait_until_visible(locators.CREATE_BUTTON).is_displayed():
+            self.click(locator=locators.CREATE_BUTTON)
+            self.wait_until_loaded([
+                locators.MODAL,
+                locators.SUBMIT_BUTTON,
+                locators.CANCEL_BUTTON,
+                locators.LID_FORM_NAME_INPUT,
+            ])
 
     def get_error(self, locator: Locator = None, timeout: float = DEFAULT_TIMEOUT) -> WebElement:
         return self.find(
-            SettingsPageLocators.ERROR_MESSAGE,
+            locators.ERROR_MESSAGE,
             locator_to_find_in=locator,
             timeout=timeout,
         )
 
-    def get_phone_error(self, locator: Locator) -> WebElement:
-        return self.get_error(SettingsPageLocators.PHONE_BLOCK)
+    def expect_error(self, expected_error: str | None, block_locator: Locator) -> bool:
+        if expected_error is None:
+            try:
+                existing_error = self.get_error(block_locator, 0.5)
+            except TimeoutException:
+                return True
+            else:
+                return False
 
-    def update_phone_number(self, new_phone_number: str) -> tuple[str, str]:
-        return self.update_input_field(
-            new_phone_number,
-            locator=SettingsPageLocators.PHONE_INPUT,
+        existing_error = self.get_error(block_locator, 1)
+        if expected_error in existing_error.text:
+            return True
+
+        return False
+
+    def submit_cancel_is_visible(self, timeout: float = DEFAULT_TIMEOUT) -> bool:
+        return self.wait(timeout).until(EC.visibility_of_element_located(
+            locators.SUBMIT_BUTTON,
+        )).is_displayed() and self.wait(timeout).until(EC.visibility_of_element_located(
+            locators.CANCEL_BUTTON,
+        )).is_displayed()
+
+    @retry(MAX_RETRIES_COUNT)
+    def press_submit(self, expect_save=False, timeout=DEFAULT_TIMEOUT):
+        if self.submit_cancel_is_visible(timeout):
+            self.click(locator=locators.SUBMIT_BUTTON)
+            if expect_save:
+                if not self.wait(timeout).until(EC.invisibility_of_element(locators.SUBMIT_BUTTON)).is_displayed():
+                    return
+
+    def _check_input(
+        self,
+        block_locator: Locator,
+        input_locator: Locator,
+        test_cases: TestCases,
+        *,
+        preview_check: Callable[[str], bool] = None,
+    ):
+        prev_value = self.get_input_value(locator=input_locator)
+        for new_value, expected_value, expected_error in test_cases:
+            _, curr_value = self.update_input_field(
+                new_value,
+                locator=input_locator,
+            )
+
+            if expected_value:
+                curr_value == expected_value
+
+            assert self.submit_cancel_is_visible()
+
+            self.press_submit()
+
+            assert self.expect_error(
+                expected_error,
+                block_locator,
+            )
+
+            if expected_error is None and preview_check:
+                assert preview_check(curr_value)
+
+        self.update_input_field(
+            prev_value,
+            locator=input_locator,
         )
 
-    def update_name(self, new_name: str) -> tuple[str, str]:
-        return self.update_input_field(
-            new_name,
-            locator=SettingsPageLocators.NAME_INPUT,
+    def check_lead_form_name_input(self, test_cases: TestCases):
+        self._check_input(
+            locators.LID_FORM_NAME_BLOCK,
+            locators.LID_FORM_NAME_INPUT,
+            test_cases,
         )
 
-    def update_inn(self, new_inn: str) -> tuple[str, str]:
-        return self.update_input_field(
-            new_inn,
-            locator=SettingsPageLocators.INN_INPUT,
+    def check_upload_logo(self):
+        self.press_submit()
+
+        assert self.expect_error(
+            ERR_REQUIRED_FIELD,
+            locators.ADD_LOGO_BLOCK,
         )
 
-    def update_cabinet(self, new_cabinet: str) -> tuple[str, str]:
-        return self.update_input_field(
-            new_cabinet,
-            locator=SettingsPageLocators.CABINET_INPUT,
+        self.click(locator=locators.ADD_LOGO_BUTTON)
+
+        self.wait_until_visible(locators.MEDIA_HEADER)
+
+        self.find(locators.FILE_INPUT).send_keys(
+            os.path.abspath(
+                os.path.join('hw', 'files', 'imgs', 'large_img.jpg'),
+            ),
         )
 
-    def update_email(self, id: int, email: str):
-        return self.update_input_field(
-            email,
-            locator=SettingsPageLocators.ADDITIONAL_EMAIL_INPUT(id),
+        assert self.wait_until_visible(locators.FILE_ERROR_BANNER)\
+            .is_displayed()
+
+        self.find(locators.FILE_INPUT).send_keys(
+            os.path.abspath(
+                os.path.join('hw', 'files', 'imgs', 'right_img.png'),
+            ),
         )
 
-    def has_warning(self, message: str) -> bool:
-        elem = self.wait().until(EC.visibility_of(
-            self.find(SettingsPageLocators.WARNING, timeout=5)))
+        assert len(self.find_all(locators.LOGO_ITEM))
 
-        return message in elem.text
+        self.click(elem=self.find_all(locators.LOGO_ITEM)[0])
 
-    def remove_additional_email(self):
-        self.click(locator=SettingsPageLocators.REMOVE_EMAIL_BUTTON, timeout=5)
+        assert self.wait_until_visible(locators.LOGO_PREVIEW).is_displayed()
+        assert self.wait_until_visible(locators.LOGO_RIGHT_PREVIEW)\
+            .is_displayed()
 
-    def open_language_dropdown(self):
-        elem = self.find(SettingsPageLocators.LANGUAGE_BUTTON)
+    def check_company_name_input(self, test_cases: TestCases):
+        self._check_input(
+            locators.COMPANY_NAME_BLOCK,
+            locators.COMPANY_NAME_INPUT,
+            test_cases,
+            preview_check=lambda text: self.wait_until_visible(
+                locators.PREVIEW_TAG('span', text)
+            ).is_displayed()
+        )
 
-        id = elem.get_attribute('aria-owns')
-        self.click(elem=elem)
-        if self.wait().until(EC.visibility_of_element_located(
-            SettingsPageLocators.LANGUAGE_DROPDOWN(id)
-        )).is_displayed():
-            return id
+    def check_compact(
+        self,
+        header_test_cases: TestCases,
+        description_test_cases: TestCases,
+    ):
+        self.click(locator=locators.COMPACT_LABEL)
 
-    def get_curr_language(self) -> str:
-        elem = self.wait().until(EC.visibility_of_element_located(
-            SettingsPageLocators.LANGUAGE_CURR_LANG))
+        self._check_input(
+            locators.HEADER_TEXT_BLOCK,
+            locators.HEADER_TEXT_INPUT,
+            header_test_cases,
+            preview_check=lambda text: self.wait_until_visible(
+                locators.PREVIEW_TAG('span', text)
+            ).is_displayed()
+        )
+        self._check_input(
+            locators.SHORT_DESCRIPTION_BLOCK,
+            locators.SHORT_DESCRIPTION_INPUT,
+            description_test_cases,
+            preview_check=lambda text: self.wait_until_visible(
+                locators.PREVIEW_TAG('span', text)
+            ).is_displayed()
+        )
 
-        return elem.text
+    def check_long(
+        self,
+        header_test_cases: TestCases,
+        description_test_cases: TestCases,
+    ):
 
-    def assert_chosen_language(self, lang_elem: WebElement):
-        assert lang_elem.get_attribute('aria-selected') == 'true'
+        self.click(locator=locators.LONG_TEXT_LABEL)
 
-    def scroll_to_connected_cabinet(self):
-        self.scroll_to(SettingsPageLocators.CONNECT_CABINET)
+        self._check_input(
+            locators.HEADER_TEXT_BLOCK,
+            locators.HEADER_TEXT_INPUT,
+            header_test_cases,
+            preview_check=lambda text: self.wait_until_visible(
+                locators.PREVIEW_TAG('h2', text)
+            ).is_displayed()
+        )
+        self._check_input(
+            locators.LONG_DESCRIPTION_BLOCK,
+            locators.LONG_DESCRIPTION_INPUT,
+            description_test_cases,
+            preview_check=lambda text: self.wait_until_visible(
+                locators.PREVIEW_TAG('div', text)
+            ).is_displayed()
+        )
 
-    def change_language(self):
-        self.scroll_to(SettingsPageLocators.LANGUAGE_BUTTON)
+    def check_award(
+        self,
+        discount_money_test_cases: TestCases,
+        discount_percent_test_cases: TestCases,
+        bonus_test_cases: TestCases,
+    ):
+        self.click(locator=locators.AWARD_LABEL)
+        self.check_award_discount(
+            discount_money_test_cases,
+            discount_percent_test_cases,
+        )
 
-        curr_language = self.get_curr_language()
+        self.check_award_bonus(bonus_test_cases)
 
-        id = self.open_language_dropdown()
-        print(curr_language)
+    def check_award_discount(
+        self,
+        money_test_cases: TestCases,
+        percent_test_cases: TestCases,
+    ):
+        self.scroll_to(locators.DISCOUNT_RADIOBUTTON)
+        discount_button = self.wait_until_visible(locators.DISCOUNT_BUTTON)
+        self.click(elem=discount_button)
+        assert self.find(locators.DISCOUNT_RADIOBUTTON).is_selected()
 
-        if curr_language == 'RU':
-            ru_elem_ru = self.wait().until(EC.visibility_of_element_located(
-                SettingsPageLocators.LANGUAGE_RU(id)
-            ))
-            self.assert_chosen_language(ru_elem_ru)
+        self.check_award_discount_money(money_test_cases)
+        self.check_award_discount_percent(percent_test_cases)
 
-            self.click(locator=SettingsPageLocators.LANGUAGE_EN(id))
+    def check_award_discount_money(self, test_cases: TestCases):
+        money_button = self.wait_until_visible(locators.MONEY_DISCOUNT_BUTTON)
+        self.click(elem=money_button)
+        assert self.find(locators.MONEY_DISCOUNT_INPUT)\
+            .is_selected()
 
-            id = self.open_language_dropdown()
+        self._check_input(
+            locators.DISCOUNT_VALUE_BLOCK,
+            locators.DISCOUNT_VALUE_INPUT,
+            test_cases,
+            preview_check=lambda text: self.wait_until_visible(
+                locators.PREVIEW_TAG('div', f'{text} Р')
+            ).is_displayed()
+        )
 
-            ru_elem_en = self.wait().until(EC.visibility_of_element_located(
-                SettingsPageLocators.LANGUAGE_EN(id)
-            ))
-            self.assert_chosen_language(ru_elem_en)
-        elif curr_language == 'EN':
-            en_elem_en = self.wait().until(EC.visibility_of_element_located(
-                SettingsPageLocators.LANGUAGE_EN(id)
-            ))
-            self.assert_chosen_language(en_elem_en)
+    def check_award_discount_percent(self, test_cases: TestCases):
+        discount_button = self.wait_until_visible(
+            locators.PERCENT_DISCOUNT_BUTTON)
+        self.click(elem=discount_button)
+        assert self.find(locators.PERCENT_DISCOUNT_INPUT)\
+            .is_selected()
 
-            self.click(locator=SettingsPageLocators.LANGUAGE_RU(id))
+        self._check_input(
+            locators.DISCOUNT_VALUE_BLOCK,
+            locators.DISCOUNT_VALUE_INPUT,
+            test_cases,
+            preview_check=lambda text: self.wait_until_visible(
+                locators.PREVIEW_TAG('div', f'{text} %')
+            ).is_displayed()
+        )
 
-            id = self.open_language_dropdown()
+    def check_award_bonus(
+        self,
+        test_cases: TestCases,
+    ):
+        bonus_button = self.wait_until_visible(locators.BONUS_BUTTON)
+        self.click(elem=bonus_button)
+        assert self.find(locators.BONUS_RADIOBUTTON)\
+            .is_selected()
 
-            en_elem_ru = self.wait().until(EC.visibility_of_element_located(
-                SettingsPageLocators.LANGUAGE_RU(id)
-            ))
-            self.assert_chosen_language(en_elem_ru)
+        self._check_input(
+            locators.BONUS_VALUE_BLOCK,
+            locators.BONUS_VALUE_INPUT,
+            test_cases,
+            preview_check=lambda text: self.wait_until_visible(
+                locators.PREVIEW_TAG('h4', text)
+            ).is_displayed()
+        )
 
-        self.click(locator=SettingsPageLocators.LANGUAGE_BUTTON)
+    def check_style(self):
+        self.scroll_to(locators.STYLE_RED)
+        red_style_button = self.wait_until_visible(locators.STYLE_RED)
+        assert 'GradientSelector_roundActive' not in red_style_button\
+            .get_attribute('class')
+
+        self.click(elem=red_style_button)
+        assert 'GradientSelector_roundActive' in red_style_button\
+            .get_attribute('class')

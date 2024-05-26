@@ -28,7 +28,6 @@ def validate_only_one_is_not_none(*args: Any):
 
 
 class BasePage:
-
     url = 'https://ads.vk.com/'
 
     def is_opened(self, url: Optional[str] = None, timeout: int | float = TIMEOUT_UNTIL_LOADED):
@@ -49,6 +48,7 @@ class BasePage:
             self.wait(TIMEOUT_UNTIL_LOADED).until(
                 EC.presence_of_all_elements_located(locator)
             )
+
     def wait_until_visible(
         self,
         locator: Locator,
@@ -124,9 +124,6 @@ class BasePage:
         if elem is None:
             elem = self.find(locator, timeout=timeout)
         self.wait(timeout).until(EC.element_to_be_clickable(elem)).click()
-
-    # def click_checkbox(self, locator: Locator) -> bool:
-    #     self.wait().until(Ec.eleme)
 
     def update_input_field(
         self,
