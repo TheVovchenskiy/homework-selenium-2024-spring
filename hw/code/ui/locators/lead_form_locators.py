@@ -91,12 +91,14 @@ class LeadFormLocators:
     # Second step
     ADD_QUESTION_BUTTON = (By.XPATH, '//span[contains(text(), "Добавить вопрос")]/../..')
 
-    # QUESTIONS_CONTAINER = (By.XPATH, '//div[@data-rbd-droppable-id="droppable"]')
     def QUESTIONS_CONTAINER(question_num: int) -> Locator:
         return (By.XPATH, f'//div[contains(text(), "Вопрос № {question_num}")]/../../..')
     
     def REMOVE_QUESTION_BUTTON(question_num: int) -> Locator:
         return (By.XPATH, f'//div[div/text()="Вопрос № {question_num}"]/div/button[@aria-label="Remove"]')
+    
+    def QUESTIONS_ERROR_ICON(question_num: int) -> Locator:
+        return (By.XPATH, f'//div[contains(text(), "Вопрос № {question_num}")]/div[contains(@class, "Question_errorIconWrap")]')
 
     QUESTION_TEXT = (By.XPATH, '//textarea[@placeholder="Напишите вопрос"]')
     QUESTION_TYPE_BUTTON = (By.XPATH, '//div[contains(text(), "Выбор одного ответа")]')
@@ -138,6 +140,16 @@ class LeadFormLocators:
     BIRTH_DATE_CHECKBOX = (By.XPATH, '//input[@type="checkbox" and @value="birth_date"]')
     COUNTRY_CHECKBOX = (By.XPATH, '//input[@type="checkbox" and @value="country"]')
     CITY_CHECKBOX = (By.XPATH, '//input[@type="checkbox" and @value="city"]')
+
+    FIRST_NAME_BUTTON = (By.XPATH, '//input[@type="checkbox" and @value="first_name"]/..')
+    LAST_NAME_BUTTON = (By.XPATH, '//input[@type="checkbox" and @value="last_name"]/..')
+    EMAIL_BUTTON = (By.XPATH, '//input[@type="checkbox" and @value="email"]/..')
+    PHONE_BUTTON = (By.XPATH, '//input[@type="checkbox" and @value="phone"]/..')
+    SOCIAL_MEDIA_PROFILE_BUTTON = (By.XPATH, '//input[@type="checkbox" and @value="social_media_profile"]/..')
+    AGE_BUTTON = (By.XPATH, '//input[@type="checkbox" and @value="age"]/..')
+    BIRTH_DATE_BUTTON = (By.XPATH, '//input[@type="checkbox" and @value="birth_date"]/..')
+    COUNTRY_BUTTON = (By.XPATH, '//input[@type="checkbox" and @value="country"]/..')
+    CITY_BUTTON = (By.XPATH, '//input[@type="checkbox" and @value="city"]/..')
 
     SUBMIT_ADD_CONTACT_INFO_BUTTON = (By.XPATH, '//button[span/span/text()="Добавить"]')
 

@@ -1,5 +1,7 @@
 import os
 from typing import Any, Callable
+
+import pytest
 from ui.pages.base_page import DEFAULT_TIMEOUT, MAX_RETRIES_COUNT
 from ui.locators.base_locators import Locator
 from ui.locators.lead_form_locators import LeadFormLocators as locators
@@ -17,6 +19,12 @@ ERR_MAX_FIELD_LEN = 'Превышена максимальная длина по
 ERR_MAX_NEW_LINE_COUNT = 'Разрешено не более 2 переносов строк подряд'
 ERR_VALUE_GT_ZERO = 'Значение должно быть больше нуля'
 ERR_MAX_DISCOUNT_PERCENT = 'Запрещено указывать скидку более 100%'
+
+
+TEST_LEAD_FORM_NAME = 'test lead form'
+TEST_COMPANY_NAME = 'test company'
+TEST_HEADER = 'test header'
+TEST_DESCRIPTION = 'test description'
 
 
 type TestCases = list[tuple[str, str | None, str | None]]
@@ -294,3 +302,175 @@ class LeadFormPage(MainPage):
         self.click(elem=red_style_button)
         assert 'GradientSelector_roundActive' in red_style_button\
             .get_attribute('class')
+
+    def complete_first_step(self):
+        self.open_create_lead_form()
+
+        self.update_input_field(
+            TEST_LEAD_FORM_NAME,
+            locator=locators.LID_FORM_NAME_INPUT,
+        )
+
+        self.check_upload_logo()
+
+        self.update_input_field(
+            TEST_COMPANY_NAME,
+            locator=locators.COMPANY_NAME_INPUT,
+        )
+
+        self.update_input_field(
+            TEST_HEADER,
+            locator=locators.HEADER_TEXT_INPUT,
+        )
+
+        self.update_input_field(
+            TEST_DESCRIPTION,
+            locator=locators.SHORT_DESCRIPTION_INPUT,
+        )
+
+        self.press_submit()
+
+        self.wait_until_loaded([
+            locators.ADD_QUESTION_BUTTON,
+            locators.ADD_CONTACT_INFO_BUTTON,
+        ])
+
+    def _check_add_questions(self):
+        for i in range(1, 6):
+            self.click(locator=locators.ADD_QUESTION_BUTTON)
+            assert self.wait_until_visible(locators.QUESTIONS_CONTAINER(i))\
+                .is_displayed()
+
+        with pytest.raises(TimeoutException):
+            self.find(locators.ADD_QUESTION_BUTTON, timeout=1)
+
+        for i in range(5, 1, -1):
+            self.click(locator=locators.REMOVE_QUESTION_BUTTON(i))
+
+        self.wait_until_visible(locators.QUESTIONS_CONTAINER(1)).is_displayed()
+
+    def check_question(self, question_test_cases: TestCases, answers_test_cases: TestCases):
+        self._check_add_questions()
+
+        self.scroll_to(locators.QUESTIONS_CONTAINER(1))
+
+        with pytest.raises(TimeoutException):
+            self.wait_until_visible(
+                locators.QUESTIONS_ERROR_ICON(1), timeout=0.1)
+
+        self.press_submit()
+
+        assert self.wait_until_visible(
+            locators.QUESTIONS_ERROR_ICON(1)).is_displayed()
+
+        self.update_input_field('1', locator=locators.QUESTION_TEXT)
+        for answer_input in self.find_all(locators.ANSWER_INPUT):
+            self.update_input_field('1', input=answer_input)
+
+        with pytest.raises(TimeoutException):
+            self.wait_until_visible(
+                locators.QUESTIONS_ERROR_ICON(1),
+                timeout=0.1,
+            )
+
+        self.check_question_text(locators.QUESTION_TEXT, question_test_cases)
+
+        self._check_question_answers(answers_test_cases)
+
+        self.click(locator=locators.REMOVE_QUESTION_BUTTON(1))
+
+    def check_question_text(self, input_locator: Locator, test_cases: TestCases):
+        prev_value = self.get_input_value(locator=input_locator)
+        for new_value, expected_value, expected_error in test_cases:
+            _, curr_value = self.update_input_field(
+                new_value,
+                locator=input_locator,
+            )
+
+            if expected_value:
+                curr_value == expected_value
+
+            if expected_error is None:
+                with pytest.raises(TimeoutException):
+                    self.wait_until_visible(
+                        locators.QUESTIONS_ERROR_ICON(1),
+                        timeout=0.1,
+                    )
+            else:
+                assert self.wait_until_visible(locators.QUESTIONS_ERROR_ICON(1))\
+                    .is_displayed()
+
+        self.update_input_field(
+            prev_value,
+            locator=input_locator,
+        )
+
+    def _check_question_answers(self, test_cases: TestCases):
+        for i in range(1, 6):
+            self.click(locator=locators.ADD_ANSWER_BUTTON)
+            assert self.wait_until_true(
+                lambda: len(self.find_all(locators.ANSWER_INPUT)) == 2 + i
+            )
+
+        with pytest.raises(TimeoutException):
+            self.find(locators.ADD_ANSWER_BUTTON, timeout=1)
+
+        for i, remove_locator in zip(range(1, 6), self.find_all(locators.ANSWER_REMOVE)[-1::-1]):
+            self.click(elem=remove_locator)
+            assert self.wait_until_true(
+                lambda: len(self.find_all(locators.ANSWER_INPUT)) == 7 - i
+            )
+
+        for answer_input in self.find_all(locators.ANSWER_INPUT):
+            self.update_input_field('1', input=answer_input)
+
+        for new_value, expected_value, expected_error in test_cases:
+            _, curr_value = self.update_input_field(
+                new_value,
+                locator=locators.ANSWER_INPUT,
+            )
+
+            if expected_value:
+                curr_value == expected_value
+
+            if expected_error is None:
+                with pytest.raises(TimeoutException):
+                    self.wait_until_visible(
+                        locators.QUESTIONS_ERROR_ICON(1),
+                        timeout=0.1,
+                    )
+            else:
+                assert self.wait_until_visible(locators.QUESTIONS_ERROR_ICON(1))\
+                    .is_displayed()
+
+        self.scroll_to(locators.QUESTION_TYPE_BUTTON)
+        self.click(locator=locators.QUESTION_TYPE_BUTTON)
+        assert self.wait_until_visible(locators.QUESTION_TYPE_FLOATING_TOOLTIP)\
+            .is_displayed()
+
+        self.click(locator=locators.FREE_FORM_ANSWER_BUTTON)
+
+        with pytest.raises(TimeoutException):
+            self.wait_until_visible(locators.ANSWER_INPUT, timeout=0.5)
+
+    def check_contact_info(self):
+        assert self.wait_until_visible(locators.FIRST_NAME_DELETE_BUTTON)\
+            .is_displayed()
+        assert self.wait_until_visible(locators.PHONE_DELETE_BUTTON)\
+            .is_displayed()
+
+        self.click(locator=locators.FIRST_NAME_DELETE_BUTTON)
+        self.click(locator=locators.PHONE_DELETE_BUTTON)
+
+        assert self.wait_until_visible(locators.ERROR_BANNER).is_displayed()
+
+        self.click(locator=locators.ADD_CONTACT_INFO_BUTTON)
+
+        assert self.wait_until_visible(locators.CONTACT_INFO_MODAL)\
+            .is_displayed()
+
+        self.click(locator=locators.FIRST_NAME_BUTTON)
+        self.click(locator=locators.SUBMIT_ADD_CONTACT_INFO_BUTTON)
+
+        assert self.wait_until_visible(locators.FIRST_NAME_DELETE_BUTTON)\
+            .is_displayed()

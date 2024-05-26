@@ -1,6 +1,7 @@
 import time
 from typing import Optional
 from selenium.common.exceptions import TimeoutException
+import allure
 
 from base import LoginCase
 from ui.locators.base_locators import Locator
@@ -26,6 +27,7 @@ class LeadFormCase(LoginCase):
 
 
 class TestLeadForm(LeadFormCase):
+    @pytest.mark.skip('skip')
     def test_first_step(self):
         self.lead_form_page.open_create_lead_form()
 
@@ -102,3 +104,24 @@ class TestLeadForm(LeadFormCase):
                 ('bonus', None, None),
             ],
         )
+
+    @pytest.mark.skip('skip')
+    def test_second_step(self):
+        self.lead_form_page.complete_first_step()
+
+        self.lead_form_page.check_question(
+            [
+                ('', '', 'error'),
+                ('   ', '    ', 'error'),
+                ('c' * 69, 'c' * 68, None),
+                ('question', 'question', None),
+            ],
+            [
+                ('', '', 'error'),
+                ('   ', '    ', 'error'),
+                ('c' * 41, 'c' * 41, None),
+                ('answer', 'answer', None),
+            ],
+        )
+
+        self.lead_form_page.check_contact_info()
