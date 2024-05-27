@@ -19,6 +19,8 @@ ERR_MAX_FIELD_LEN = 'Превышена максимальная длина по
 ERR_MAX_NEW_LINE_COUNT = 'Разрешено не более 2 переносов строк подряд'
 ERR_VALUE_GT_ZERO = 'Значение должно быть больше нуля'
 ERR_MAX_DISCOUNT_PERCENT = 'Запрещено указывать скидку более 100%'
+ERR_INVALID_URL = 'Невалидный url'
+ERR_INVALID_PHONE = 'Телефон должен начинаться с + и содержать только цифры'
 
 
 TEST_LEAD_FORM_NAME = 'test lead form'
@@ -51,6 +53,7 @@ class LeadFormPage(MainPage):
             timeout=timeout,
         )
 
+    @retry(exceptions=TimeoutException, tries=MAX_RETRIES_COUNT, delay=0.5)
     def expect_error(self, expected_error: str | None, block_locator: Locator) -> bool:
         if expected_error is None:
             try:
@@ -58,13 +61,13 @@ class LeadFormPage(MainPage):
             except TimeoutException:
                 return True
             else:
-                return False
+                raise TimeoutException
 
         existing_error = self.get_error(block_locator, 1)
         if expected_error in existing_error.text:
             return True
 
-        return False
+        raise TimeoutException
 
     def submit_cancel_is_visible(self, timeout: float = DEFAULT_TIMEOUT) -> bool:
         return self.wait(timeout).until(EC.visibility_of_element_located(
@@ -88,6 +91,7 @@ class LeadFormPage(MainPage):
         test_cases: TestCases,
         *,
         preview_check: Callable[[str], bool] = None,
+        save_after_test_case=True,
     ):
         prev_value = self.get_input_value(locator=input_locator)
         for new_value, expected_value, expected_error in test_cases:
@@ -99,9 +103,9 @@ class LeadFormPage(MainPage):
             if expected_value:
                 curr_value == expected_value
 
-            assert self.submit_cancel_is_visible()
-
-            self.press_submit()
+            if save_after_test_case:
+                assert self.submit_cancel_is_visible()
+                self.press_submit()
 
             assert self.expect_error(
                 expected_error,
@@ -224,14 +228,14 @@ class LeadFormPage(MainPage):
         bonus_test_cases: TestCases,
     ):
         self.click(locator=locators.AWARD_LABEL)
-        self.check_award_discount(
+        self._check_award_discount(
             discount_money_test_cases,
             discount_percent_test_cases,
         )
 
-        self.check_award_bonus(bonus_test_cases)
+        self._check_award_bonus(bonus_test_cases)
 
-    def check_award_discount(
+    def _check_award_discount(
         self,
         money_test_cases: TestCases,
         percent_test_cases: TestCases,
@@ -241,10 +245,10 @@ class LeadFormPage(MainPage):
         self.click(elem=discount_button)
         assert self.find(locators.DISCOUNT_RADIOBUTTON).is_selected()
 
-        self.check_award_discount_money(money_test_cases)
-        self.check_award_discount_percent(percent_test_cases)
+        self._check_award_discount_money(money_test_cases)
+        self._check_award_discount_percent(percent_test_cases)
 
-    def check_award_discount_money(self, test_cases: TestCases):
+    def _check_award_discount_money(self, test_cases: TestCases):
         money_button = self.wait_until_visible(locators.MONEY_DISCOUNT_BUTTON)
         self.click(elem=money_button)
         assert self.find(locators.MONEY_DISCOUNT_INPUT)\
@@ -259,7 +263,7 @@ class LeadFormPage(MainPage):
             ).is_displayed()
         )
 
-    def check_award_discount_percent(self, test_cases: TestCases):
+    def _check_award_discount_percent(self, test_cases: TestCases):
         discount_button = self.wait_until_visible(
             locators.PERCENT_DISCOUNT_BUTTON)
         self.click(elem=discount_button)
@@ -275,7 +279,7 @@ class LeadFormPage(MainPage):
             ).is_displayed()
         )
 
-    def check_award_bonus(
+    def _check_award_bonus(
         self,
         test_cases: TestCases,
     ):
@@ -373,13 +377,13 @@ class LeadFormPage(MainPage):
                 timeout=0.1,
             )
 
-        self.check_question_text(locators.QUESTION_TEXT, question_test_cases)
+        self._check_question_text(locators.QUESTION_TEXT, question_test_cases)
 
         self._check_question_answers(answers_test_cases)
 
         self.click(locator=locators.REMOVE_QUESTION_BUTTON(1))
 
-    def check_question_text(self, input_locator: Locator, test_cases: TestCases):
+    def _check_question_text(self, input_locator: Locator, test_cases: TestCases):
         prev_value = self.get_input_value(locator=input_locator)
         for new_value, expected_value, expected_error in test_cases:
             _, curr_value = self.update_input_field(
@@ -474,3 +478,80 @@ class LeadFormPage(MainPage):
 
         assert self.wait_until_visible(locators.FIRST_NAME_DELETE_BUTTON)\
             .is_displayed()
+
+    def complete_second_step(self):
+        self.complete_first_step()
+
+        self.press_submit()
+
+    def check_header(self, test_cases: TestCases):
+        prev_header, _ = self.update_input_field(
+            '',
+            locator=locators.HEADER_INPUT,
+        )
+        self.press_submit()
+        self._check_input(
+            locators.HEADER_BLOCK,
+            locators.HEADER_INPUT,
+            test_cases,
+            preview_check=lambda text: self.wait_until_visible(
+                locators.PREVIEW_TAG('h2', text)
+            ).is_displayed(),
+            save_after_test_case=False,
+        )
+        self.update_input_field(prev_header, locator=locators.HEADER_INPUT)
+
+    def check_description(self, test_cases: TestCases):
+        prev_header, _ = self.update_input_field(
+            '',
+            locator=locators.HEADER_INPUT,
+        )
+        self._check_input(
+            locators.DESCRIPTION_BLOCK,
+            locators.DESCRIPTION_INPUT,
+            test_cases,
+        )
+        self.update_input_field(prev_header, locator=locators.HEADER_INPUT)
+
+    def check_add_site(self, test_cases: TestCases):
+        prev_header, _ = self.update_input_field(
+            '',
+            locator=locators.HEADER_INPUT,
+        )
+
+        self.click(locator=locators.ADD_SITE_BUTTON)
+
+        self._check_input(
+            locators.SITE_BLOCK,
+            locators.SITE_INPUT,
+            test_cases,
+        )
+        self.update_input_field(prev_header, locator=locators.HEADER_INPUT)
+
+    def check_add_phone(self, test_cases: TestCases):
+        prev_header, _ = self.update_input_field(
+            '',
+            locator=locators.HEADER_INPUT,
+        )
+        self.click(locator=locators.ADD_PHONE_BUTTON)
+
+        self._check_input(
+            locators.PHONE_BLOCK,
+            locators.PHONE_INPUT,
+            test_cases,
+        )
+        self.update_input_field(prev_header, locator=locators.HEADER_INPUT)
+
+    def check_add_promo_code(self, test_cases: TestCases):
+        prev_header, _ = self.update_input_field(
+            '',
+            locator=locators.HEADER_INPUT,
+        )
+        self.click(locator=locators.ADD_PROMO_CODE_BUTTON)
+
+        self._check_input(
+            locators.PROMO_CODE_BLOCK,
+            locators.PROMO_CODE_INPUT,
+            test_cases,
+        )
+        self.update_input_field(prev_header, locator=locators.HEADER_INPUT)

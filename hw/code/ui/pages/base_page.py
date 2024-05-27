@@ -156,7 +156,6 @@ class BasePage:
             input = self.find(locator, timeout=DEFAULT_TIMEOUT)
 
         return self.wait().until(EC.visibility_of(input)).get_attribute(VALUE_ATTRIBUTE_NAME)
-        # return input.get_attribute(VALUE_ATTRIBUTE_NAME)
 
     def scroll_to(self, locator: Locator):
         target_elem = self.find(locator)

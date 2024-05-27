@@ -12,7 +12,9 @@ from ui.pages.lead_form_page import (
     ERR_REQUIRED_FIELD,
     ERR_MAX_NEW_LINE_COUNT,
     ERR_VALUE_GT_ZERO,
-    ERR_MAX_DISCOUNT_PERCENT
+    ERR_MAX_DISCOUNT_PERCENT,
+    ERR_INVALID_URL,
+    ERR_INVALID_PHONE,
 )
 
 from ui.fixtures import *
@@ -125,3 +127,42 @@ class TestLeadForm(LeadFormCase):
         )
 
         self.lead_form_page.check_contact_info()
+
+    def test_third_step(self):
+        self.lead_form_page.complete_second_step()
+
+        self.lead_form_page.check_header([
+            ('', None, ERR_REQUIRED_FIELD),
+            ('    ', None, ERR_REQUIRED_FIELD),
+            ('c' * 26, None, ERR_MAX_FIELD_LEN),
+            ('header', None, None),
+        ])
+
+        self.lead_form_page.check_description([
+            ('', None, None),
+            ('    ', None, None),
+            ('c' * 161, None, ERR_MAX_FIELD_LEN),
+            ('description', None, None),
+        ])
+
+        self.lead_form_page.check_add_site([
+            ('', None, None),
+            ('    ', None, ERR_INVALID_URL),
+            ('example.com', None, ERR_INVALID_URL),
+            ('https://example.com', None, None),
+        ])
+
+        self.lead_form_page.check_add_phone([
+            ('', None, None),
+            ('    ', None, ERR_INVALID_PHONE),
+            ('89608363276', None, ERR_INVALID_PHONE),
+            ('abc', None, ERR_INVALID_PHONE),
+            ('+71234567890', None, None),
+        ])
+        
+        self.lead_form_page.check_add_promo_code([
+            ('', None, None),
+            ('    ', None, None),
+            ('a' * 31, None, ERR_MAX_FIELD_LEN),
+            ('some promo code', None, None),
+        ])

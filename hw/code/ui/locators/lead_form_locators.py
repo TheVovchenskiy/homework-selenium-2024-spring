@@ -156,17 +156,22 @@ class LeadFormLocators:
     ERROR_BANNER = (By.XPATH, '//p[text()="Минимальное количество полей: 1"]')
 
     # Third step
-    HEADER_INPUT = (By.XPATH, '//input[@value="Спасибо за ответы!"]')
-    DESCRIPTION_INPUT = (By.XPATH, '//input[@value="Заявка отправлена"]')
+    HEADER_BLOCK = (By.XPATH, '//h5[text()="Заголовок"]/..')
+    HEADER_INPUT = (By.XPATH, '//h5[text()="Заголовок"]/../span/input')
+    DESCRIPTION_BLOCK = (By.XPATH, '//h5[text()="Описание"]/..')
+    DESCRIPTION_INPUT = (By.XPATH, '//h5[text()="Описание"]/../span/input')
 
     ADD_SITE_BUTTON = (By.XPATH, '//div[@role="button" and @data-testid="add-site-btn"]')
+    SITE_BLOCK = (By.XPATH, '//div[@placeholder="Введите ссылку на сайт"]')
     SITE_INPUT = (By.XPATH, '//div[@placeholder="Введите ссылку на сайт"]/span/input')
 
     ADD_PHONE_BUTTON = (By.XPATH, '//div[@role="button" and @data-testid="add-phone-btn"]')
     PHONE_INPUT = (By.XPATH, '//input[@placeholder="+7......"]')
+    PHONE_BLOCK = (By.XPATH, '//input[@placeholder="+7......"]/../..')
 
     ADD_PROMO_CODE_BUTTON = (By.XPATH, '//div[@role="button" and @data-testid="add-promo-code-btn"]')
     PROMO_CODE_INPUT = (By.XPATH, '//input[@placeholder="Введите промокод"]')
+    PROMO_CODE_BLOCK = (By.XPATH, '//input[@placeholder="Введите промокод"]/../..')
 
     # Fourth step
     NOTIFY_EMAIL_CHECKBOX = (By.XPATH, '//span[text()="Уведомлять о новых заявках по email"]/../../../input[@type="checkbox"]')
