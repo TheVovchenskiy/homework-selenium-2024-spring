@@ -176,13 +176,20 @@ class LeadFormLocators:
     # Fourth step
     NOTIFY_EMAIL_CHECKBOX = (By.XPATH, '//span[text()="Уведомлять о новых заявках по email"]/../../../input[@type="checkbox"]')
     NOTIFY_EMAIL_BUTTON = (By.XPATH, '//span[text()="Уведомлять о новых заявках по email"]/../../../input[@type="checkbox"]/..')
+    EMAILS_INPUT = (By.XPATH, '//input[@placeholder="email@example.com"]')
+    EMAILS_BLOCK = (By.XPATH, '//input[@placeholder="email@example.com"]/../..')
 
     NOTIFY_MESSENGER_CHECKBOX = (By.XPATH, '//span[text()="Уведомлять о новых заявках в VK Messenger"]/../../../input[@type="checkbox"]')
-    EMAILS_INPUT = (By.XPATH, '//input[@placeholder="email@example.com"]')
-
     NOTIFY_MESSENGER_BUTTON = (By.XPATH, '//span[text()="Уведомлять о новых заявках в VK Messenger"]/../../../input[@type="checkbox"]/..')
 
     NAME_INPUT = (By.XPATH, '//input[@placeholder="Введите фамилию, имя и отчество"]')
+    NAME_BLOCK = (By.XPATH, '//input[@placeholder="Введите фамилию, имя и отчество"]/../..')
+
     ADDRESS_INPUT = (By.XPATH, '//input[@placeholder="Введите адрес"]')
+    ADDRESS_BLOCK = (By.XPATH, '//input[@placeholder="Введите адрес"]/../..')
+
     EMAIL_INPUT = (By.XPATH, '//input[@placeholder="Введите email"]')
+    EMAIL_BLOCK = (By.XPATH, '//input[@placeholder="Введите email"]/../..')
+
     INN_INPUT = (By.XPATH, '//input[@placeholder="Введите ИНН"]')
+    INN_BLOCK = (By.XPATH, '//input[@placeholder="Введите ИНН"]/../..')

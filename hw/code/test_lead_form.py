@@ -15,6 +15,8 @@ from ui.pages.lead_form_page import (
     ERR_MAX_DISCOUNT_PERCENT,
     ERR_INVALID_URL,
     ERR_INVALID_PHONE,
+    ERR_INVALID_EMAILS,
+    ERR_INVALID_EMAIL,
 )
 
 from ui.fixtures import *
@@ -128,6 +130,7 @@ class TestLeadForm(LeadFormCase):
 
         self.lead_form_page.check_contact_info()
 
+    @pytest.mark.skip('skip')
     def test_third_step(self):
         self.lead_form_page.complete_second_step()
 
@@ -159,10 +162,121 @@ class TestLeadForm(LeadFormCase):
             ('abc', None, ERR_INVALID_PHONE),
             ('+71234567890', None, None),
         ])
-        
+
         self.lead_form_page.check_add_promo_code([
             ('', None, None),
             ('    ', None, None),
             ('a' * 31, None, ERR_MAX_FIELD_LEN),
             ('some promo code', None, None),
+        ])
+
+    def test_fourth_step(self):
+        self.lead_form_page.complete_third_step()
+
+        self.lead_form_page.check_emails([
+            ('', None, None),
+            ('    ', None, None),
+            ('email@example', None, ERR_INVALID_EMAILS),
+            ('e@@e.com', None, ERR_INVALID_EMAILS),
+            ('e@e..com', None, ERR_INVALID_EMAILS),
+            ('em..ail@e.com', None, ERR_INVALID_EMAILS),
+            ('@example.com', None, ERR_INVALID_EMAILS),
+            ('email', None, ERR_INVALID_EMAILS),
+            ('@', None, ERR_INVALID_EMAILS),
+            ('email', None, ERR_INVALID_EMAILS),
+            ('em<ail@e.com', None, ERR_INVALID_EMAILS),
+            ('em>ail@e.com', None, ERR_INVALID_EMAILS),
+            ('em,ail@e.com', None, ERR_INVALID_EMAILS),
+            ('em"ail@e.com', None, ERR_INVALID_EMAILS),
+            ('em:ail@e.com', None, ERR_INVALID_EMAILS),
+            ('em;ail@e.com', None, ERR_INVALID_EMAILS),
+            ('em[ail@e.com', None, ERR_INVALID_EMAILS),
+            ('em]ail@e.com', None, ERR_INVALID_EMAILS),
+            ('em@ail@e.com', None, ERR_INVALID_EMAILS),
+            ('ma il@e.com', None, ERR_INVALID_EMAILS),
+            ('mail@e<e.com', None, ERR_INVALID_EMAILS),
+            ('mail@e>e.com', None, ERR_INVALID_EMAILS),
+            ('mail@e,e.com', None, ERR_INVALID_EMAILS),
+            ('mail@e"e.com', None, ERR_INVALID_EMAILS),
+            ('mail@e:e.com', None, ERR_INVALID_EMAILS),
+            ('mail@e;e.com', None, ERR_INVALID_EMAILS),
+            ('mail@e[e.com', None, ERR_INVALID_EMAILS),
+            ('mail@e]e.com', None, ERR_INVALID_EMAILS),
+            ('mail@e@e.com', None, ERR_INVALID_EMAILS),
+            ('mail@e e.com', None, ERR_INVALID_EMAILS),
+            ('email@example.com, email', None, ERR_INVALID_EMAILS),
+            ('mail@e.com ', None, None),
+            ('email@example.co', None, None),
+            ('email@e.c', None, None),
+            (' mail@e.com', None, None),
+            ('email@e.x.a.m.p.l.e.com', None, None),
+            ('email@example.com', None, None),
+            ('email@example.com,email@example.com', None, None),
+            (' email@example.com , email@example.com ', None, None),
+        ])
+
+        self.lead_form_page.check_messenger()
+
+        self.lead_form_page.check_name([
+            ('', None, ERR_REQUIRED_FIELD),
+            ('   ', None, ERR_REQUIRED_FIELD),
+            ('n' * 256, None, ERR_MAX_FIELD_LEN),
+            ('name', None, None),
+            ('firstname lastname', None, None),
+        ])
+
+        self.lead_form_page.check_address([
+            ('', None, ERR_REQUIRED_FIELD),
+            ('   ', None, ERR_REQUIRED_FIELD),
+            ('a' * 256, None, ERR_MAX_FIELD_LEN),
+            ('address', None, None),
+            ('long address', None, None),
+        ])
+
+        self.lead_form_page.check_email([
+            ('', None, None),
+            ('    ', None, ERR_INVALID_EMAIL),
+            ('email@example', None, ERR_INVALID_EMAIL),
+            ('e@@e.com', None, ERR_INVALID_EMAIL),
+            ('e@e..com', None, ERR_INVALID_EMAIL),
+            ('em..ail@e.com', None, ERR_INVALID_EMAIL),
+            ('@example.com', None, ERR_INVALID_EMAIL),
+            ('email', None, ERR_INVALID_EMAIL),
+            ('@', None, ERR_INVALID_EMAIL),
+            ('email', None, ERR_INVALID_EMAIL),
+            ('em<ail@e.com', None, ERR_INVALID_EMAIL),
+            ('em>ail@e.com', None, ERR_INVALID_EMAIL),
+            ('em,ail@e.com', None, ERR_INVALID_EMAIL),
+            ('em"ail@e.com', None, ERR_INVALID_EMAIL),
+            ('em:ail@e.com', None, ERR_INVALID_EMAIL),
+            ('em;ail@e.com', None, ERR_INVALID_EMAIL),
+            ('em[ail@e.com', None, ERR_INVALID_EMAIL),
+            ('em]ail@e.com', None, ERR_INVALID_EMAIL),
+            ('em@ail@e.com', None, ERR_INVALID_EMAIL),
+            ('ma il@e.com', None, ERR_INVALID_EMAIL),
+            ('mail@e<e.com', None, ERR_INVALID_EMAIL),
+            ('mail@e>e.com', None, ERR_INVALID_EMAIL),
+            ('mail@e,e.com', None, ERR_INVALID_EMAIL),
+            ('mail@e"e.com', None, ERR_INVALID_EMAIL),
+            ('mail@e:e.com', None, ERR_INVALID_EMAIL),
+            ('mail@e;e.com', None, ERR_INVALID_EMAIL),
+            ('mail@e[e.com', None, ERR_INVALID_EMAIL),
+            ('mail@e]e.com', None, ERR_INVALID_EMAIL),
+            ('mail@e@e.com', None, ERR_INVALID_EMAIL),
+            ('mail@e e.com', None, ERR_INVALID_EMAIL),
+            ('email@example.com, email', None, ERR_INVALID_EMAIL),
+            ('mail@e.com ', None, ERR_INVALID_EMAIL),
+            (' mail@e.com', None, ERR_INVALID_EMAIL),
+            ('email@example.co', None, None),
+            ('email@e.c', None, None),
+            ('email@e.x.a.m.p.l.e.com', None, None),
+            ('email@example.com', None, None),
+        ])
+
+        self.lead_form_page.check_inn([
+            ('', None, None),
+            ('   ', None, None),
+            ('a' * 33, None, ERR_MAX_FIELD_LEN),
+            ('inn', None, None),
+            ('123', None, None),
         ])

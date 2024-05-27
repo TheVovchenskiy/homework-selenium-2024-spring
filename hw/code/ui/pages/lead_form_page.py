@@ -21,6 +21,8 @@ ERR_VALUE_GT_ZERO = 'Значение должно быть больше нул�
 ERR_MAX_DISCOUNT_PERCENT = 'Запрещено указывать скидку более 100%'
 ERR_INVALID_URL = 'Невалидный url'
 ERR_INVALID_PHONE = 'Телефон должен начинаться с + и содержать только цифры'
+ERR_INVALID_EMAILS = 'Поле содержит невалидные email'
+ERR_INVALID_EMAIL = 'Некорректный email адрес'
 
 
 TEST_LEAD_FORM_NAME = 'test lead form'
@@ -61,13 +63,13 @@ class LeadFormPage(MainPage):
             except TimeoutException:
                 return True
             else:
-                raise TimeoutException
+                raise TimeoutException(f'got error {existing_error.text}, expected None')
 
         existing_error = self.get_error(block_locator, 1)
         if expected_error in existing_error.text:
             return True
 
-        raise TimeoutException
+        raise TimeoutException(f'{existing_error.text=}; {expected_error=}')
 
     def submit_cancel_is_visible(self, timeout: float = DEFAULT_TIMEOUT) -> bool:
         return self.wait(timeout).until(EC.visibility_of_element_located(
@@ -555,3 +557,51 @@ class LeadFormPage(MainPage):
             test_cases,
         )
         self.update_input_field(prev_header, locator=locators.HEADER_INPUT)
+
+    def complete_third_step(self):
+        self.complete_second_step()
+
+        self.press_submit()
+
+    def check_emails(self, test_cases: TestCases):
+        self.click(locator=locators.NOTIFY_EMAIL_BUTTON)
+        assert self.find(locators.NOTIFY_EMAIL_CHECKBOX).is_selected()
+
+        self._check_input(
+            locators.EMAILS_BLOCK,
+            locators.EMAILS_INPUT,
+            test_cases,
+        )
+
+    def check_messenger(self):
+        assert not self.find(locators.NOTIFY_MESSENGER_CHECKBOX).is_selected()
+        self.click(locator=locators.NOTIFY_MESSENGER_BUTTON)
+        assert self.find(locators.NOTIFY_MESSENGER_CHECKBOX).is_selected()
+
+    def check_name(self, test_cases: TestCases):
+        self._check_input(
+            locators.NAME_BLOCK,
+            locators.NAME_INPUT,
+            test_cases,
+        )
+
+    def check_address(self, test_cases: TestCases):
+        self._check_input(
+            locators.ADDRESS_BLOCK,
+            locators.ADDRESS_INPUT,
+            test_cases,
+        )
+
+    def check_email(self, test_cases: TestCases):
+        self._check_input(
+            locators.EMAIL_BLOCK,
+            locators.EMAIL_INPUT,
+            test_cases,
+        )
+
+    def check_inn(self, test_cases: TestCases):
+        self._check_input(
+            locators.INN_BLOCK,
+            locators.INN_INPUT,
+            test_cases,
+        )
