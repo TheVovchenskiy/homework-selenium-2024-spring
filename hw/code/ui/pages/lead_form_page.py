@@ -29,6 +29,8 @@ TEST_LEAD_FORM_NAME = 'test lead form'
 TEST_COMPANY_NAME = 'test company'
 TEST_HEADER = 'test header'
 TEST_DESCRIPTION = 'test description'
+TEST_NAME = 'test name'
+TEST_ADDRESS = 'test address'
 
 
 type TestCases = list[tuple[str, str | None, str | None]]
@@ -63,7 +65,8 @@ class LeadFormPage(MainPage):
             except TimeoutException:
                 return True
             else:
-                raise TimeoutException(f'got error {existing_error.text}, expected None')
+                raise TimeoutException(
+                    f'got error {existing_error.text}, expected None')
 
         existing_error = self.get_error(block_locator, 1)
         if expected_error in existing_error.text:
@@ -128,6 +131,23 @@ class LeadFormPage(MainPage):
             locators.LID_FORM_NAME_INPUT,
             test_cases,
         )
+
+    def _upload_logo(self):
+        self.click(locator=locators.ADD_LOGO_BUTTON)
+
+        self.find(locators.FILE_INPUT).send_keys(
+            os.path.abspath(
+                os.path.join('hw', 'files', 'imgs', 'right_img.png'),
+            ),
+        )
+
+        assert len(self.find_all(locators.LOGO_ITEM))
+
+        self.click(elem=self.find_all(locators.LOGO_ITEM)[0])
+
+        assert self.wait_until_visible(locators.LOGO_PREVIEW).is_displayed()
+        assert self.wait_until_visible(locators.LOGO_RIGHT_PREVIEW)\
+            .is_displayed()
 
     def check_upload_logo(self):
         self.press_submit()
@@ -317,7 +337,7 @@ class LeadFormPage(MainPage):
             locator=locators.LID_FORM_NAME_INPUT,
         )
 
-        self.check_upload_logo()
+        self._upload_logo()
 
         self.update_input_field(
             TEST_COMPANY_NAME,
@@ -605,3 +625,39 @@ class LeadFormPage(MainPage):
             locators.INN_INPUT,
             test_cases,
         )
+
+    def create_and_delete_lead_form(self):
+        self.complete_third_step()
+
+        self.update_input_field(TEST_NAME, locator=locators.NAME_INPUT)
+        self.update_input_field(TEST_ADDRESS, locator=locators.ADDRESS_INPUT)
+
+        self.press_submit()
+
+        assert self.wait_until_visible(locators.LEAD_FORM_ITEM_NAME(TEST_LEAD_FORM_NAME))\
+            .is_displayed()
+
+        created_lead_form = self.find(
+            locators.LEAD_FORM_ITEM_NAME(TEST_LEAD_FORM_NAME),
+        )
+        move_to = self.actions.move_to_element(created_lead_form)
+        move_to.perform()
+
+        assert self.wait_until_visible(locators.LEAD_FORM_ITEM_DELETE_BUTTON(TEST_LEAD_FORM_NAME))\
+            .is_displayed()
+
+        self.click(
+            locator=locators.LEAD_FORM_ITEM_DELETE_BUTTON(TEST_LEAD_FORM_NAME),
+        )
+
+        assert self.wait_until_visible(locators.MODAL).is_displayed()
+
+        self.click(locator=locators.DELETE_LEAD_FORM_BUTTON)
+
+        self.wait(10).until(EC.invisibility_of_element_located(locators.MODAL))
+
+        with pytest.raises(TimeoutException):
+            self.wait_until_visible(
+                locators.LEAD_FORM_ITEM_NAME(TEST_LEAD_FORM_NAME),
+                timeout=1,
+            )

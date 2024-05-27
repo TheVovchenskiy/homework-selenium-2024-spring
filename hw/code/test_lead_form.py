@@ -31,7 +31,6 @@ class LeadFormCase(LoginCase):
 
 
 class TestLeadForm(LeadFormCase):
-    @pytest.mark.skip('skip')
     def test_first_step(self):
         self.lead_form_page.open_create_lead_form()
 
@@ -109,7 +108,6 @@ class TestLeadForm(LeadFormCase):
             ],
         )
 
-    @pytest.mark.skip('skip')
     def test_second_step(self):
         self.lead_form_page.complete_first_step()
 
@@ -130,7 +128,6 @@ class TestLeadForm(LeadFormCase):
 
         self.lead_form_page.check_contact_info()
 
-    @pytest.mark.skip('skip')
     def test_third_step(self):
         self.lead_form_page.complete_second_step()
 
@@ -280,3 +277,6 @@ class TestLeadForm(LeadFormCase):
             ('inn', None, None),
             ('123', None, None),
         ])
+
+    def test_create_delete(self):
+        self.lead_form_page.create_and_delete_lead_form()

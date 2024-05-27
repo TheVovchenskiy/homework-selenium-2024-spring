@@ -20,7 +20,7 @@ class LeadFormLocators:
     DELETE_LEAD_FORM_BUTTON = (By.XPATH, '//button[span/span/text()="Удалить"]')
     CANCEL_DELETE_LEAD_FORM_BUTTON = (By.XPATH, '//button[span/span/text()="Отменить"]')
 
-    MODAL = (By.CLASS_NAME, 'ModalRoot_componentWrapper__uzHTL')
+    MODAL = (By.XPATH, '//div[contains(@class, "ModalRoot_componentWrapper")]')
 
     SUBMIT_BUTTON = (By.XPATH, '//*[@data-testid="submit"]')
     CANCEL_BUTTON = (By.XPATH, '//*[@data-testid="cancel"]')
