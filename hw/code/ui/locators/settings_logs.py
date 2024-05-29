@@ -8,7 +8,7 @@ class SettingsLogsPageLocators:
     TAB_ITEM = (By.ID, 'tab-settings.logs')
 
     FILTER_BUTTON = (By.XPATH, '//*[@data-testid="filter-button"]')
-    CALENDAR_BUTTON = (By.XPATH, '//*[@id="settings.logs"]/div/div[2]/div/div[1]/div/div/div[1]/div[1]/div[2]/button')
+    CALENDAR_BUTTON = (By.XPATH, '//div[contains(@class, "RangeDatePickerManager_rangeText")]/../../..')
 
     @staticmethod
     def filter_section_button(text: str):
@@ -23,7 +23,10 @@ class SettingsLogsPageLocators:
     CHANGE_AUTHOR_BUTTON = filter_section_button('Автор изменения')
 
     CHECKBOX = (By.XPATH, '//input[@type="checkbox"]')
-    CHECKBOX_BUTTON = locator_xpath_parent(CHECKBOX, 2)
+    CHECKBOX_BUTTON = locator_xpath_parent(CHECKBOX, 1)
+
+    COMPANY_CHECKBOX = (By.XPATH, '//span[text()="Кампания"]/../../../input')
+    COMPANY_CHECKBOX_BUTTON = (By.XPATH, '//span[text()="Кампания"]/../../..')
 
     TODAY_BUTTON = (By.XPATH, '//button[span[contains(text(), "Сегодня")]]')
 

@@ -42,7 +42,7 @@ class TestSettingsLogs(SettingsLogsCase):
         checkbox_buttons = self.settings_page\
             .find_all(locators.CHECKBOX_BUTTON)
 
-        self.settings_page.click(elem=checkbox_buttons[0])
+        self.settings_page.click(locator=locators.CHECKBOX_BUTTON)
 
         assert self.settings_page\
             .wait_until_visible(locators.RESET_BUTTON).is_displayed()
@@ -52,7 +52,7 @@ class TestSettingsLogs(SettingsLogsCase):
         checkbox_buttons = self.settings_page\
             .find_all(locators.CHECKBOX_BUTTON)
 
-        self.settings_page.click(elem=checkbox_buttons[0])
+        self.settings_page.click(locator=locators.CHECKBOX_BUTTON)
 
         assert self.settings_page\
             .wait_until_visible(locators.RESET_BUTTON).is_displayed()
@@ -75,14 +75,14 @@ class TestSettingsLogs(SettingsLogsCase):
         checkbox_buttons = self.settings_page\
             .find_all(locators.CHECKBOX_BUTTON)
 
-        self.settings_page.click(elem=checkbox_buttons[0])
+        self.settings_page.click(locator=locators.CHECKBOX_BUTTON)
 
         self.settings_page.click(locator=locators.WHAT_CHANGED_BUTTON)
 
         checkbox_buttons = self.settings_page\
             .find_all(locators.CHECKBOX_BUTTON)
 
-        self.settings_page.click(elem=checkbox_buttons[0])
+        self.settings_page.click(locator=locators.CHECKBOX_BUTTON)
 
         self.settings_page.click(locator=locators.SAVE_BUTTON)
 
@@ -113,25 +113,20 @@ class TestSettingsLogs(SettingsLogsCase):
             .wait_until_visible(locators.MODAL)\
             .is_displayed()
 
-        self.settings_page.wait_until_visible(locators.TODAY_BUTTON).click()
+        self.settings_page.click(locator=locators.TODAY_BUTTON)
 
-        start_date_input = self.settings_page.wait_until_visible(
-            locators.START_DATE_INPUT)
-        end_date_input = self.settings_page.wait_until_visible(
-            locators.END_DATE_INPUT)
-
-        assert start_date_input.is_displayed()
-        assert end_date_input.is_displayed()
+        assert self.settings_page.wait_until_visible(locators.START_DATE_INPUT)
+        assert self.settings_page.wait_until_visible(locators.END_DATE_INPUT)
 
         today = datetime.datetime.now().date()
         yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
         yesterday = yesterday.date()
 
-        start_date_input.send_keys('999999' + Keys.TAB)
+        self.settings_page.find(locators.START_DATE_INPUT).send_keys('999999' + Keys.TAB)
         assert str(today) == self.settings_page\
             .get_input_value(locator=locators.START_DATE_INPUT)
 
-        end_date_input.send_keys(
+        self.settings_page.find(locators.END_DATE_INPUT).send_keys(
             f'{yesterday.day}{yesterday.month}{yesterday.year}' + Keys.TAB)
 
         assert str(yesterday) == self.settings_page\

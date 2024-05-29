@@ -8,7 +8,7 @@ from ui.locators.base_locators import Locator
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, StaleElementReferenceException
 
 
 from ui.fixtures import *
@@ -65,7 +65,7 @@ class BasePage:
     def wait(self, timeout=None):
         if timeout is None:
             timeout = DEFAULT_TIMEOUT
-        return WebDriverWait(self.driver, timeout=timeout)
+        return WebDriverWait(self.driver, timeout=timeout, ignored_exceptions=(StaleElementReferenceException,))
 
     def wait_until_true(self, func: Callable[[Any], bool], timeout: float = None, *args, **kwargs) -> bool:
         if timeout is None:
