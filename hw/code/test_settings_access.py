@@ -1,5 +1,3 @@
-import time
-
 from test_settings import SettingsCase
 from ui.locators.settings_access import SettingsAccessPageLocators as locators
 from selenium.webdriver.support import expected_conditions as EC
@@ -21,7 +19,6 @@ class SettingsAccessCase(SettingsCase):
 
 
 class TestSettingsAccess(SettingsAccessCase):
-
     def test_more(self):
         self.settings_page.click(locator=locators.MORE_BUTTON)
 

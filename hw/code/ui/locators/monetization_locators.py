@@ -1,10 +1,10 @@
 from selenium.webdriver.common.by import By
 
 class MonetizationPageLocators:
-    TOP = (By.CLASS_NAME, 'PartnerContent_top__1PH5F')
+    TOP = (By.XPATH, '//*[contains(@class, "PartnerContent_top__")]')
 
-    PERSONAL_ACCOUNT_BUTTON = (By.CLASS_NAME, 'PartnerContent_headerButton__wIZ5X')
-    HELP_BUTTON = (By.CLASS_NAME, 'PartnerContent_headerButtonSecondary__2Lm1G')
+    PERSONAL_ACCOUNT_BUTTON = (By.XPATH, '//*[contains(@class, "PartnerContent_headerButton__")]')
+    HELP_BUTTON = (By.XPATH, '//*[contains(@class, "PartnerContent_headerButtonSecondary__")]')
 
     FOR_SITES_BUTTON = (By.XPATH, '//button[contains(text(), "Для сайтов")]')
     FOR_APPLICATIONS_BUTTON = (By.XPATH, '//button[contains(text(), "Для приложений")]')
@@ -24,7 +24,7 @@ class MonetizationPageLocators:
     VIDEO_FOR_REWARD_ITEM = (By.XPATH, '//*[@src="https://r.mradx.net/cms/88/C08D6E.svg"]')
     FOR_APPLICATIONS_ITEMS = [MOBILE_BANNER_ITEM, NATIVE_FORMAT_ITEM, MOBILE_FULLSCREEN_ITEM, VIDEO_FOR_REWARD_ITEM]
 
-    PERSONAL_ACCOUNT_BUTTON_2 = (By.CLASS_NAME, 'CallToAction_button__5h7GS')
+    PERSONAL_ACCOUNT_BUTTON_2 = (By.XPATH, '//*[contains(@class, "CallToAction_button__")]')
 
     NAME_INPUT = (By.XPATH, '//*[@id="name"]')
     EMAIL_INPUT = (By.XPATH, '//*[@id="email"]')
@@ -32,6 +32,6 @@ class MonetizationPageLocators:
     POSITION_INPUT = (By.XPATH, '//*[@id="position"]')
     COMMENT_INPUT = (By.XPATH, '//*[@id="comment"]')
 
-    SEND_FEEDBACK_BUTTON = (By.CLASS_NAME, 'Form_button__fLIZc')
+    SEND_FEEDBACK_BUTTON = (By.XPATH, '//*[contains(@class, "Form_button__")]')
 
-    SUCCESS_FORM = (By.CLASS_NAME, 'Form_success__39zq_')
+    SUCCESS_FORM = (By.XPATH, '//*[contains(@class, "Form_success__")]')

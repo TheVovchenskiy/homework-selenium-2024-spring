@@ -1,5 +1,3 @@
-import time
-from ui.pages.base_page import DEFAULT_TIMEOUT
 from ui.locators.base_locators import Locator
 from ui.locators.support_locators import SupportPageLocators
 from ui.pages.base_page import BasePage

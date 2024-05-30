@@ -37,6 +37,10 @@ test-registration:
 test-monetization:
 	python3 -m pytest -k test_monetization ./hw/code
 
+.PHONY: test-surveys
+test-surveys:
+	python3 -m pytest -k test_surveys ./hw/code
+
 .PHONY: test
 test: test-settings test-support test-monetization
 

@@ -7,7 +7,7 @@ class SupportPageLocators:
     SUPPORT_BUTTON = (By.XPATH, '//span[contains(text(), "Помощь")]')
     ASK_QUESTION_BUTTON = (By.XPATH, '//span[contains(text(), "Задать вопрос")]')
 
-    QUESTION_FORM = (By.CLASS_NAME, 'ModalManagerPage_modalContent__ybbav')
+    QUESTION_FORM = (By.XPATH, '//*[contains(@class, "ModalManagerPage_modalContent__")]')
 
     FAQ_HREF = (By.XPATH, '//*[@href="https://ads.vk.com/help/articles/partner_faq"]')
 

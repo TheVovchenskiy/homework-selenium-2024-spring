@@ -41,7 +41,6 @@ class SettingsNotificationsCase(SettingsCase):
 
 
 class TestSettingsNotifications(SettingsNotificationsCase):
-
     def test_disabled_checkboxes(self):
         self.disable_all_switches()
 
