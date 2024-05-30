@@ -44,7 +44,7 @@ class LeadFormLocators:
     FAILED_TO_LOAD_FILES_ERROR = (By.XPATH, '//div[text()="Не удалось загрузить файлы"]')
     LOGO_ITEM = (By.XPATH, '//div[contains(@class, "ImageItems_imageItem")]')
 
-    LOGO_PREVIEW = (By.CLASS_NAME, 'Preview_activeLogoWrap__Ti7Cw')
+    LOGO_PREVIEW = (By.XPATH, '//*[contains(@class, "Preview_activeLogoWrap")]')
     LOGO_RIGHT_PREVIEW = (By.XPATH, '//img[@alt="Название компании"]')
     CHANGE_LOGO_BUTTON = (By.XPATH, '//*[@data-testid="change-image"]')
     CROP_LOGO_BUTTON = (By.XPATH, '//*[@data-testid="crop-image"]')

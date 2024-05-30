@@ -77,4 +77,4 @@ class SettingsPageLocators:
 
     ERROR_MESSAGE = (By.XPATH, './/span[@role="alert"]')
 
-    WARNING = (By.XPATH, './/*[@class="Warning_container__WlR61 VerificationInfo_warning__Fwwj+"]')
+    WARNING = (By.XPATH, './/*[contains(@class, "Warning_container" and contains(@class, "VerificationInfo_warning"))]')
