@@ -35,13 +35,13 @@ class BaseCase:
     def support_setup(self):
         pass
 
-    def registration_setup(self):
-        pass
-
     def monetization_setup(self):
         pass
 
     def lead_form_setup(self):
+        pass
+
+    def surveys_setup(self):
         pass
 
     @pytest.fixture(scope='function', autouse=True)
@@ -56,9 +56,9 @@ class BaseCase:
 
         self.settings_setup()
         self.support_setup()
-        self.registration_setup()
         self.monetization_setup()
         self.lead_form_setup()
+        self.surveys_setup()
 
 
 class LoginCase(BaseCase):

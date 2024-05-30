@@ -12,23 +12,19 @@ class TestMonetizationCase(BaseCase):
     def top_displayed_check(self):
         assert self.monetization_page.is_top_displayed()
 
-    # @pytest.mark.skip('skip')
     def test_personal_account_button(self, top_displayed_check):
         self.monetization_page.press_personal_account_button()
         self.monetization_page.assert_window_count(2)
         self.monetization_page.driver.close()
 
-    # @pytest.mark.skip('skip')
     def test_help_button(self, top_displayed_check):
         self.monetization_page.press_help_button()
         self.monetization_page.assert_window_count(2)
         self.monetization_page.driver.close()
     
-    # @pytest.mark.skip('skip')
     def test_for_site_button(self, top_displayed_check):
         assert self.monetization_page.is_for_site_items_displayed()
 
-    # @pytest.mark.skip('skip')
     def test_send_button_inactive(self, top_displayed_check):
         name_elem = self.monetization_page.find(MonetizationPageLocators.NAME_INPUT)
         name_elem.clear()
@@ -41,7 +37,6 @@ class TestMonetizationCase(BaseCase):
         
         assert not self.monetization_page.is_send_feedback_button_active()
 
-    # @pytest.mark.skip('skip')
     def test_success_sending_feedback(self, top_displayed_check):
         self.monetization_page.enter_name("   ")
         self.monetization_page.enter_email("   ")

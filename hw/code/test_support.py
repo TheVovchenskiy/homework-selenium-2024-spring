@@ -22,29 +22,24 @@ class TestSupportCase(BaseCase):
         self.support_page.wait_until_loaded([SupportPageLocators.TOPIC_BUTTON, SupportPageLocators.MESSAGE_FORM,
                                              SupportPageLocators.NAME_FORM, SupportPageLocators.EMAIL_FORM])
     
-    # @pytest.mark.skip('skip')
     def test_close_button(self, open_support_window):
         assert self.support_page.is_support_window_displayed()
         self.support_page.press_close_button()
         assert self.support_page.is_support_window_hidden()
 
-    # @pytest.mark.skip('skip')
     def test_cancel_button(self, open_support_window):
         assert self.support_page.is_support_window_displayed()
         self.support_page.press_cancel_button()
         assert self.support_page.is_support_window_hidden()
 
-    # @pytest.mark.skip('skip')
     def test_faq_href(self, open_support_window):
         self.support_page.click_faq_href()
         self.support_page.assert_window_count(2)
         self.support_page.driver.close()
 
-    # @pytest.mark.skip('skip')
     def test_change_topic(self, open_support_window):
         self.support_page.change_topic("statistics")
 
-    # @pytest.mark.skip('skip')
     def test_message_form_1(self, open_support_window):
         for input, expected_error in [
             ("", EMPTY_FORM),
@@ -61,7 +56,6 @@ class TestSupportCase(BaseCase):
             except:
                 assert expected_error == None
 
-    # @pytest.mark.skip('skip')
     def test_message_form_2(self, open_support_window):
         self.support_page.change_topic("payments")
         self.support_page.enter_name("Имя Фамилия")
@@ -83,7 +77,6 @@ class TestSupportCase(BaseCase):
             except:
                 assert expected_error == None
 
-    # @pytest.mark.skip('skip')
     def test_name_form(self, open_support_window):
         for input, expected_error in [
             ("", EMPTY_FORM),
@@ -101,7 +94,6 @@ class TestSupportCase(BaseCase):
             except:
                 assert expected_error == None
 
-    # @pytest.mark.skip('skip')
     def test_email_form(self, open_support_window):
         email_elem = self.support_page.find(SupportPageLocators.EMAIL_FORM)
         email_elem.clear()
@@ -128,7 +120,6 @@ class TestSupportCase(BaseCase):
             except:
                 assert expected_error == None
 
-    # @pytest.mark.skip('skip')
     def test_success_case(self, open_support_window):
         email_elem = self.support_page.find(SupportPageLocators.EMAIL_FORM)
         email_elem.clear()

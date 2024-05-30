@@ -66,6 +66,7 @@ class TestSettings(SettingsCase):
             'Удалить кабинет',
         ])]
     )
+
     def test_layout(self, expected_values):
         assert all(map(
             lambda item: item in self.driver.page_source,

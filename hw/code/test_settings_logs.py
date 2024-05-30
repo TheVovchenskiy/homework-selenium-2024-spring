@@ -1,5 +1,4 @@
 import datetime
-import time
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
 

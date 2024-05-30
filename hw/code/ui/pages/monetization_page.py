@@ -1,10 +1,6 @@
-from ui.pages.base_page import DEFAULT_TIMEOUT
-from ui.locators.base_locators import Locator
 from ui.locators.monetization_locators import MonetizationPageLocators
 from ui.pages.base_page import BasePage
 
-
-from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
 
 class MonetizationPage(BasePage):
