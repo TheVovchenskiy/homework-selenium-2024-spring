@@ -12,10 +12,10 @@ class LeadFormLocators:
         return (By.XPATH, f'//button[text()="{name}"]')
     
     def LEAD_FORM_ITEM_DELETE_BUTTON(name: str) -> Locator:
-        return (By.XPATH, f'//button[text()="{name}"]/../div/div/button[span/text()="Удалить"]')
+        return (By.XPATH, f'//button[text()="{name}"]/..//button[span/text()="Удалить"]')
     
     def LEAD_FORM_ITEM_EDIT_BUTTON(name: str) -> Locator:
-        return (By.XPATH, f'//button[text()="{name}"]/../div/div/button[span/text()="Редактировать"]')
+        return (By.XPATH, f'//button[text()="{name}"]/..//button[span/text()="Редактировать"]')
     
     DELETE_LEAD_FORM_BUTTON = (By.XPATH, '//button[span/span/text()="Удалить"]')
     CANCEL_DELETE_LEAD_FORM_BUTTON = (By.XPATH, '//button[span/span/text()="Отменить"]')

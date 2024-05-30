@@ -51,7 +51,7 @@ class SettingsPageLocators:
     def LANGUAGE_EN(id: str):
         return (By.ID, f'{id}-en')
 
-    CONNECT_CABINET = (By.XPATH, '//div[div[div[span[contains(text(), "Привязать кабинет myTarget")]]]]')
+    CONNECT_CABINET = (By.XPATH, '//div[div/div/span[contains(text(), "Привязать кабинет myTarget")]]')
     CONNECT_CABINET_MODAL = (By.XPATH, '//div[contains(@id, "_modal_")]')
 
     API_ACCESS_BUTTON = (By.CLASS_NAME, 'ApiAccess_wrapper__QEwLb')
@@ -69,10 +69,10 @@ class SettingsPageLocators:
     API_ACCESS_SAVE_BUTTON = (By.XPATH, '//button[@type="submit" and @title="Запросить доступ"]')
     API_ACCESS_CANCEL_BUTTON = (By.XPATH, './/button[@type="button"]')
 
-    LOGOUT_ALL_DEVICES_BUTTON = (By.XPATH, '//button[span[span[contains(text(), "Выйти из других устройств")]]]')
+    LOGOUT_ALL_DEVICES_BUTTON = (By.XPATH, '//button[span/span[contains(text(), "Выйти из других устройств")]]')
     LOGOUT_ALL_DEVICES_MESSAGE = (By.XPATH, '//div[contains(text(), "Активные сеансы на других устройствах успешно завершены.")]')
 
-    DELETE_CABINET_BUTTON = (By.XPATH, '//button[span[span[contains(text(), "Удалить кабинет")]]]')
+    DELETE_CABINET_BUTTON = (By.XPATH, '//button[span/span[contains(text(), "Удалить кабинет")]]')
     DELETE_CABINET_MODAL = (By.XPATH, '//div[contains(text(), "Удалить кабинет ")]')
 
     ERROR_MESSAGE = (By.XPATH, './/span[@role="alert"]')

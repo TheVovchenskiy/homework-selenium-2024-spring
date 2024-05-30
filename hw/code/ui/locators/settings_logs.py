@@ -12,7 +12,7 @@ class SettingsLogsPageLocators:
 
     @staticmethod
     def filter_section_button(text: str):
-        return (By.XPATH, f'//button[span[span[span[contains(text(), "{text}")]]]]')
+        return (By.XPATH, f'//button[span//span[contains(text(), "{text}")]]')
 
     MODAL = (By.XPATH, '//div[@data-popper-reference-hidden and @data-popper-escaped and @data-popper-placement and @data-popper-interactive]')
 
@@ -28,14 +28,14 @@ class SettingsLogsPageLocators:
     COMPANY_CHECKBOX = (By.XPATH, '//span[text()="Кампания"]/../../../input')
     COMPANY_CHECKBOX_BUTTON = (By.XPATH, '//span[text()="Кампания"]/../../..')
 
-    TODAY_BUTTON = (By.XPATH, '//button[span[contains(text(), "Сегодня")]]')
+    TODAY_BUTTON = (By.XPATH, '//button[span/text()="Сегодня"]')
 
     START_DATE_INPUT = (By.NAME, 'startDate')
     END_DATE_INPUT = (By.NAME, 'endDate')
 
     @staticmethod
     def modal_button(text: str):
-        return (By.XPATH, f'//button[span[span[contains(text(), "{text}")]]]')
+        return (By.XPATH, f'//button[span//text()="{text}"]')
 
     SELECT_ALL_BUTTON = modal_button('Выбрать все')
     RESET_BUTTON = modal_button('Сбросить')
