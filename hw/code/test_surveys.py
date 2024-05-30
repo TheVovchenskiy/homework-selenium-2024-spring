@@ -20,7 +20,6 @@ class TestSurveysCase(BaseCase):
     def open_survey_creation_modal_window(self):
         self.surveys_page.press_create_survey_button()
 
-    @pytest.mark.skip('skip')
     def test_survey_name_input(self, open_survey_creation_modal_window):
         for input, expected_error in [
             ("", REQUIRED_FILED),
@@ -37,11 +36,9 @@ class TestSurveysCase(BaseCase):
            else:
                assert error_elem.text == expected_error
 
-    @pytest.mark.skip('skip')
     def test_logo_uploading(self, open_survey_creation_modal_window):
         self.surveys_page.upload_logo()
 
-    @pytest.mark.skip('skip')
     def test_close_modal_window_button(self, open_survey_creation_modal_window):
         assert self.surveys_page.wait().until(EC.visibility_of_element_located(SurveysPageLocators.SURVEY_MODAL_WINDOW)).is_displayed()
 
@@ -49,7 +46,6 @@ class TestSurveysCase(BaseCase):
 
         assert self.surveys_page.wait().until(EC.invisibility_of_element_located(SurveysPageLocators.SURVEY_MODAL_WINDOW))
 
-    @pytest.mark.skip('skip')
     def test_company_name_input(self, open_survey_creation_modal_window):
         for input, expected_error in [
             ("", REQUIRED_FILED),
@@ -67,7 +63,6 @@ class TestSurveysCase(BaseCase):
             else:
                assert error_elem.text == expected_error
 
-    @pytest.mark.skip('skip')
     def test_survey_header_input(self, open_survey_creation_modal_window):
         for input, expected_error in [
             ("", REQUIRED_FILED),
@@ -85,7 +80,6 @@ class TestSurveysCase(BaseCase):
             else:
                assert error_elem.text == expected_error
 
-    @pytest.mark.skip('skip')
     def test_survey_description_input(self, open_survey_creation_modal_window):
         for input, expected_error in [
             ("", REQUIRED_FILED),
@@ -102,7 +96,6 @@ class TestSurveysCase(BaseCase):
             else:
                assert error_elem.text == expected_error
 
-    @pytest.mark.skip('skip')
     def test_first_step_correct_input(self, open_survey_creation_modal_window):
         self.surveys_page.enter_survey_name("Опрос-30-05-24")
         self.surveys_page.upload_logo()
@@ -132,7 +125,6 @@ class TestSurveysCase(BaseCase):
 
         assert self.surveys_page.wait().until(EC.visibility_of_element_located(SurveysPageLocators.QUESTION_ITEM)).is_displayed()
 
-    @pytest.mark.skip('skip')
     def test_back_button_from_second_step(self, open_second_step_modal_window):
         assert self.surveys_page.wait().until(EC.visibility_of_element_located(SurveysPageLocators.QUESTION_ITEM)).is_displayed()
 
@@ -141,7 +133,6 @@ class TestSurveysCase(BaseCase):
         assert self.surveys_page.wait().until(EC.invisibility_of_element_located(SurveysPageLocators.QUESTION_ITEM))
         assert self.surveys_page.wait().until(EC.visibility_of_element_located(SurveysPageLocators.SURVEY_NAME_INPUT)).is_displayed()
 
-    @pytest.mark.skip('skip')
     def test_question_type_button(self, open_second_step_modal_window):
         for option, name in [(SurveysPageLocators.ONE_OF_LIST, "Один из списка"), (SurveysPageLocators.SEVERAL_OF_LIST, "Несколько из списка"), 
                        (SurveysPageLocators.FREE_FORM_ANSWER, "Ответ в свободной форме"), (SurveysPageLocators.SCALE, "Шкала")]:
@@ -150,7 +141,6 @@ class TestSurveysCase(BaseCase):
             elem = self.surveys_page.find(locator=SurveysPageLocators.QUESTION_TYPE_BUTTON)
             assert elem.text == name
 
-    @pytest.mark.skip('skip')
     def test_question_text_input(self, open_second_step_modal_window):
         question = self.surveys_page.find(SurveysPageLocators.QUESTION_ITEM)
 
@@ -170,7 +160,6 @@ class TestSurveysCase(BaseCase):
 
             assert len(self.surveys_page.find(SurveysPageLocators.QUESTION_INPUT).text) <= 68
 
-    @pytest.mark.skip('skip')
     def test_question_answer_input(self, open_second_step_modal_window):
         question = self.surveys_page.find(SurveysPageLocators.QUESTION_ITEM)
         self.surveys_page.enter_question_text("Тестовый вопрос")
@@ -191,7 +180,6 @@ class TestSurveysCase(BaseCase):
             else:
                assert error_elem.text == expected_error
 
-    @pytest.mark.skip('skip')
     def test_add_answer_button(self, open_second_step_modal_window):
         question = self.surveys_page.find(SurveysPageLocators.QUESTION_ITEM)
 
@@ -203,7 +191,6 @@ class TestSurveysCase(BaseCase):
         self.surveys_page.press_add_answer_button(question)
         assert self.surveys_page.wait().until(EC.invisibility_of_element_located(SurveysPageLocators.ADD_ANSWER))
 
-    @pytest.mark.skip('skip')
     def test_template_answers(self, open_second_step_modal_window):
         question = self.surveys_page.find(SurveysPageLocators.QUESTION_ITEM)
 
@@ -225,7 +212,6 @@ class TestSurveysCase(BaseCase):
 
             assert self.surveys_page.wait().until(EC.invisibility_of_element(new_answer))
 
-    @pytest.mark.skip('skip')
     def test_duplicate_button(self, open_second_step_modal_window):
         original_question = self.surveys_page.find(SurveysPageLocators.QUESTION_ITEM)
 
@@ -248,7 +234,6 @@ class TestSurveysCase(BaseCase):
         assert self.surveys_page.get_question_text(questions[0]) == self.surveys_page.get_question_text(questions[1])
         assert self.surveys_page.get_template_answer_value(questions[0]) == self.surveys_page.get_template_answer_value(questions[1])
 
-    @pytest.mark.skip('skip')
     def test_add_diaplay_condition_button(self, open_second_step_modal_window):
         original_question = self.surveys_page.find(SurveysPageLocators.QUESTION_ITEM)
 
@@ -270,7 +255,6 @@ class TestSurveysCase(BaseCase):
 
         assert self.surveys_page.wait().until(EC.invisibility_of_element(error_elem))
 
-    @pytest.mark.skip('skip')
     def test_add_question_button(self, open_second_step_modal_window):
         assert len(self.surveys_page.find_all(SurveysPageLocators.QUESTION_ITEM)) == 1
 
@@ -281,7 +265,6 @@ class TestSurveysCase(BaseCase):
         self.surveys_page.press_remove_question_button(questions[1])
         assert self.surveys_page.wait().until(EC.invisibility_of_element(questions[1]))
 
-    @pytest.mark.skip('skip')
     def test_add_question_button(self, open_second_step_modal_window):
         assert len(self.surveys_page.find_all(SurveysPageLocators.QUESTION_ITEM)) == 1
 
@@ -318,7 +301,6 @@ class TestSurveysCase(BaseCase):
 
         assert self.surveys_page.wait().until(EC.visibility_of_element_located(SurveysPageLocators.RESULT_HEADER_INPUT)).is_displayed()
 
-    @pytest.mark.skip('skip')
     def test_header_input(self, open_third_step_modal_window):
         for input, expected_error in [
             ("", REQUIRED_FILED),
@@ -335,7 +317,6 @@ class TestSurveysCase(BaseCase):
             else:
                assert error_elem.text == expected_error
 
-    @pytest.mark.skip('skip')
     def test_description_input(self, open_third_step_modal_window):
         for input, expected_error in [
             ("", REQUIRED_FILED),
@@ -351,7 +332,6 @@ class TestSurveysCase(BaseCase):
             else:
                assert error_elem.text == expected_error
 
-    @pytest.mark.skip('skip')
     def test_link_input(self, open_third_step_modal_window):
         self.surveys_page.enter_result_header("")
 
